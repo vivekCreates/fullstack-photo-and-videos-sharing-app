@@ -7,7 +7,5 @@ class UserCreate(BaseModel):
     password:str = Field(...,min_length=6, max_length=100)
     profile_image:Optional[str] = None
 
-    class Config:
-        from_attributes = True
-
+    
     
