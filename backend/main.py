@@ -1,6 +1,7 @@
-def main():
-    print("Hello from backend!")
+import uvicorn
+from app.app import app
+
 
 
 if __name__ == "__main__":
-    main()
+    uvicorn(app,host="localhost",port=8000)
