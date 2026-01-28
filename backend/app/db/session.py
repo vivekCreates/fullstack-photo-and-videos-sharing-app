@@ -1,11 +1,10 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from app.core.config import settings
 
-DATABASE_URL = ""
 engine = create_engine(
-    DATABASE_URL,
-    connect_args={"Check same thread":False}
-    
+    settings.database_url,
+
 )
 
 SessionLocal = sessionmaker(

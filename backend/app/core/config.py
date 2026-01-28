@@ -1,35 +1,40 @@
-from typing import List
+from typing import List, Optional
 from pydantic_settings import BaseSettings
 from pydantic import field_validator
-import os
+import urllib.parse
+
+
 
 class Settings(BaseSettings):
     API_PREFIX: str = "/api"
     DEBUG: bool = False
 
-    DATABASE_URL: str = None
+    # Database parts
+    DB_USER: str
+    DB_PASSWORD: str
+    DB_HOST: str
+    DB_PORT: int
+    DB_NAME: str
+
+    DATABASE_URL: Optional[str] = None
 
     ALLOWED_ORIGINS: str = ""
 
-    OPENAI_API_KEY: str
-
-    def __init__(self, **values):
-        super().__init__(**values)
-        if not self.DEBUG:
-            db_user = os.getenv("DB_USER")
-            db_password = os.getenv("DB_PASSWORD")
-            db_host = os.getenv("DB_HOST")
-            db_port = os.getenv("DB_PORT")
-            db_name = os.getenv("DB_NAME")
-            self.DATABASE_URL = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+    @property
+    def database_url(self) -> str:
+        password = urllib.parse.quote_plus(self.DB_PASSWORD)
+        return (
+            self.DATABASE_URL
+            or f"postgresql://{self.DB_USER}:{password}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        )
 
     @field_validator("ALLOWED_ORIGINS")
+    @classmethod
     def parse_allowed_origins(cls, v: str) -> List[str]:
-        return v.split(",") if v else []
+        return [i.strip() for i in v.split(",")] if v else []
 
     class Config:
         env_file = ".env"
-        env_file_encoding = "utf-8"
         case_sensitive = True
 
 

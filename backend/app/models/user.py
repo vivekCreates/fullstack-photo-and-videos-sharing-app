@@ -1,5 +1,5 @@
 from sqlalchemy import Column,Integer,String,DateTime
-from db.base import Base
+from app.db.base import Base
 from sqlalchemy.sql import func
 
 class User(Base):
@@ -10,5 +10,5 @@ class User(Base):
     password = Column(String,nullable=False)
     profile_image = Column(String,nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    completed_at = Column(DateTime(timezone=True), nullable=True)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     

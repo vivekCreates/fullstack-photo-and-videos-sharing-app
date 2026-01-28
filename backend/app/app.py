@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from core.config import settings
-from routes import user
-from db.init_db import create_tables
+from app.core.config import settings
+from app.routes import user
+from app.db.init_db import create_tables
 
 create_tables()
 
