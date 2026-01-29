@@ -8,4 +8,6 @@ class UserCreate(BaseModel):
     profile_image:Optional[str] = None
 
     
-    
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
