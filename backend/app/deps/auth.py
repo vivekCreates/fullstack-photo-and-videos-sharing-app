@@ -8,6 +8,6 @@ def get_current_user(access_token: str = Cookie(None)):
 
     try:
         payload = decode_token(access_token)
-        return payload["sub"]
+        return payload["token"]
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")

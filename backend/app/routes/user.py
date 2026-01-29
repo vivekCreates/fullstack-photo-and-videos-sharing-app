@@ -1,4 +1,5 @@
-from fastapi import APIRouter,Depends,HTTPException
+from urllib import response
+from fastapi import APIRouter,Depends,HTTPException,Response
 from app.schemas.user import UserCreate,UserLogin
 from sqlalchemy.orm import Session
 from app.db.session import get_db
@@ -43,7 +44,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail="User registration failed")
     
 @router.post("/login")
-def login(user: UserLogin, db: Session = Depends(get_db)):
+def login(response:Response,user: UserLogin, db: Session = Depends(get_db)):
     try:
         db_user = db.query(User).filter(User.email == user.email).first()
         if not db_user:
@@ -56,7 +57,15 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
                 'statusCode': 400,
                 'message': 'Invalid email or password'
             }
-        token = create_token({"user_id": db_user.id, "email": db_user.email})
+        token = create_token({"sub": db_user.email})
+
+        response.set_cookie(
+            key="token",
+            value=token,
+            httponly=True,
+            secure=False,   
+            samesite="lax"
+        )
         return {
             'statusCode': 200,
             'message': 'Login successful',
