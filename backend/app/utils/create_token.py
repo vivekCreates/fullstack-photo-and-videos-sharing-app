@@ -1,11 +1,10 @@
 from datetime import datetime, timedelta
 import jwt
-from core.config import settings
+from app.core.config import settings
 
 def create_token(data:dict):
     to_encode = data.copy()
-    expire = datetime.timezone.utc + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    expire = datetime.now() + timedelta(minutes=settings.JWT_TOKEN_EXPIRY)
     to_encode.update({"exp":expire})
-    return jwt.encode(to_encode,settings.SECRET_KEY,algorithm=settings.ALGORITHM)
+    return jwt.encode(to_encode,settings.JWT_TOKEN_SECRET,algorithm=settings.ALGORITHM)
     
