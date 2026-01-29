@@ -8,3 +8,6 @@ def create_token(data:dict):
     to_encode.update({"exp":expire})
     return jwt.encode(to_encode,settings.JWT_TOKEN_SECRET,algorithm=settings.ALGORITHM)
     
+
+def decode_token(token: str):
+    return jwt.decode(token, settings.JWT_TOKEN_SECRET, algorithms=[settings.ALGORITHM])
