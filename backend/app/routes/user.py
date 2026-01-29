@@ -5,6 +5,8 @@ from app.db.session import get_db
 from app.models.user import User
 
 
+
+
 router = APIRouter(prefix="/auth")
 
 @router.post("/register")
