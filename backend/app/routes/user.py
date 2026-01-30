@@ -74,3 +74,18 @@ def login(response:Response,user: UserLogin, db: Session = Depends(get_db)):
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail="Login failed")
+    
+@router.post("/logout")
+def logout(response:Response):
+    response.delete_cookie(
+            key="token",
+            httponly=True,
+            secure=False,   
+            samesite="lax"
+    )
+    return {
+        'message':"Logout successfully",
+        'statusCode':200
+    }
+    
+    
