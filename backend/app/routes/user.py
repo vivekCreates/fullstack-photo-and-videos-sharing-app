@@ -1,4 +1,4 @@
-from fastapi import APIRouter,Depends,HTTPException,Response,Request
+from fastapi import APIRouter,Depends,HTTPException,Response,Request,UploadFile,File
 from app.schemas.user import UserCreate,UserLogin
 from sqlalchemy.orm import Session
 from app.db.session import get_db
@@ -118,8 +118,10 @@ def get_current_user(
         )
 
     return user
-@app.post("/upload-avatar")
-async def upload_file(file: UploadFile = File(...)):
+
+
+@router.post("/upload-avatar")
+def upload_file(file: UploadFile = File(...)):
     return {
         "filename": file.filename,
         "content_type": file.content_type
