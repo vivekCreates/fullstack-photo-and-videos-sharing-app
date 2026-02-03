@@ -1,11 +1,10 @@
-from urllib import response
-from fastapi import APIRouter,Depends,HTTPException,Response
+from fastapi import APIRouter,Depends,HTTPException,Response,Request
 from app.schemas.user import UserCreate,UserLogin
 from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.models.user import User
 from app.utils.hash_password import hash_password,verify_password
-from app.utils.create_token import create_token
+from app.utils.create_token import create_token,decode_token
 
 
 
@@ -88,4 +87,40 @@ def logout(response:Response):
         'statusCode':200
     }
     
-    
+@router.get("/me")
+def get_current_user(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    token = request.cookies.get("token")
+
+    if not token:
+        raise HTTPException(
+            status_code=404,
+            detail="Not authenticated"
+        )
+
+    payload = decode_token(token)
+    email: str = payload.get("sub")
+
+    if email is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Invalid token payload"
+        )
+
+    user = db.query(User).filter(User.email == email).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=400,
+            detail="User not found"
+        )
+
+    return user
+@app.post("/upload-avatar")
+async def upload_file(file: UploadFile = File(...)):
+    return {
+        "filename": file.filename,
+        "content_type": file.content_type
+}
