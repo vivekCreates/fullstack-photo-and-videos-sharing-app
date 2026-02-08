@@ -6,7 +6,7 @@ from app.models.user import User
 from app.utils.hash_password import hash_password,verify_password
 from app.utils.create_token import create_token,decode_token
 from app.utils.imagekit import upload_file_on_imagekit
-
+from app.utils.auth import get_current_user
 
 router = APIRouter(prefix="/auth")
 
@@ -42,8 +42,10 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
         print(e)
         raise HTTPException(status_code=500, detail="User registration failed")
     
+
 @router.post("/login")
-def login(response:Response,user: UserLogin, db: Session = Depends(get_db)):
+def login(user: UserLogin,response:Response, db: Session = Depends(get_db)):
+    print("Run login router")
     try:
         db_user = db.query(User).filter(User.email == user.email).first()
         if not db_user:
@@ -52,11 +54,12 @@ def login(response:Response,user: UserLogin, db: Session = Depends(get_db)):
                 'message': 'Invalid email or password'
             }
         if not verify_password(user.password, db_user.password):
+            print("After hash password")
             return {
                 'statusCode': 400,
                 'message': 'Invalid email or password'
             }
-        token = create_token({"sub": db_user.email})
+        token = create_token({"email": db_user.email})
 
         response.set_cookie(
             key="token",
@@ -74,6 +77,7 @@ def login(response:Response,user: UserLogin, db: Session = Depends(get_db)):
         print(e)
         raise HTTPException(status_code=500, detail="Login failed")
     
+    
 @router.post("/logout")
 def logout(response:Response):
     response.delete_cookie(
@@ -86,48 +90,23 @@ def logout(response:Response):
         'message':"Logout successfully",
         'statusCode':200
     }
-    
-@router.get("/me")
-def get_current_user(
-    request: Request,
-    db: Session = Depends(get_db)
-):
-    token = request.cookies.get("token")
-
-    if not token:
-        raise HTTPException(
-            status_code=404,
-            detail="Not authenticated"
-        )
-
-    payload = decode_token(token)
-    email: str = payload.get("sub")
-
-    if email is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Invalid token payload"
-        )
-
-    user = db.query(User).filter(User.email == email).first()
-
-    if not user:
-        raise HTTPException(
-            status_code=400,
-            detail="User not found"
-        )
-
-    return user
-
 
 @router.post("/upload-avatar")
-async def upload_file(file: UploadFile = File(...),db:Session = Depends(get_db)):
+async def upload_file(file: UploadFile = File(...),user=Depends(get_current_user),db:Session = Depends(get_db)):
+    print("user: ",user)
     try:
         response = await upload_file_on_imagekit(file)
         if not response:
             raise HTTPException(status_code=500, detail="File upload failed")
         else:
-            user = db.query(User).filter()
+            user.profile_image = response["url"]
+            db.commit()
+            db.refresh(user)
+            
+            return {
+                "message": "File uploaded successfully",
+                "file_url": response["url"]
+            }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     

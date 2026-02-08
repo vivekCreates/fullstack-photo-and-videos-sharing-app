@@ -8,8 +8,7 @@ def get_current_user(
     request: Request,
     db: Session = Depends(get_db)
 ):
-    token = request.cookies.get("access_token")
-
+    token = request.cookies.get("token")
     if not token:
         auth_header = request.headers.get("Authorization")
         if auth_header and auth_header.startswith("Bearer "):
@@ -22,20 +21,21 @@ def get_current_user(
         )
 
     payload = decode_token(token)
+    print("Decoded payload: ", payload)
     if not payload:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token"
         )
 
-    user_id = payload.get("sub")
-    if not user_id:
+    user_email = payload.get("email")
+    if not user_email:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token payload"
         )
 
-    user = db.query(User).filter(User.id == user_id).first()
+    user = db.query(User).filter(User.email == user_email).first()
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
