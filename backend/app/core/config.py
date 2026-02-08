@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     DB_PORT: int
     DB_NAME: str
 
+    IMAGEKIT_PRIVATE_KEY: str
+    
     DATABASE_URL: Optional[str] = None
 
     # JWT

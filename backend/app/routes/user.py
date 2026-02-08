@@ -5,7 +5,7 @@ from app.db.session import get_db
 from app.models.user import User
 from app.utils.hash_password import hash_password,verify_password
 from app.utils.create_token import create_token,decode_token
-
+from app.utils.imagekit import upload_file_on_imagekit
 
 
 router = APIRouter(prefix="/auth")
@@ -121,8 +121,13 @@ def get_current_user(
 
 
 @router.post("/upload-avatar")
-def upload_file(file: UploadFile = File(...)):
-    return {
-        "filename": file.filename,
-        "content_type": file.content_type
-    }
+async def upload_file(file: UploadFile = File(...),db:Session = Depends(get_db)):
+    try:
+        response = await upload_file_on_imagekit(file)
+        if not response:
+            raise HTTPException(status_code=500, detail="File upload failed")
+        else:
+            user = db.query(User).filter()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
