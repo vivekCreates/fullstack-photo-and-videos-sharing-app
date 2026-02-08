@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.routes import user
+from app.routes import post
 from app.db.init_db import create_tables
 
 create_tables()
@@ -23,6 +24,7 @@ app.add_middleware(
 )
 
 app.include_router(user.router, prefix=settings.API_PREFIX)
+app.include_router(post.router, prefix=settings.API_PREFIX)
 
 
 @app.get("/")
