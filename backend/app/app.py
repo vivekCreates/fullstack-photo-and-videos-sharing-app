@@ -23,3 +23,8 @@ app.add_middleware(
 )
 
 app.include_router(user.router, prefix=settings.API_PREFIX)
+
+
+@app.get("/")
+def root():
+    return {"message": "Welcome to the Photo and Video Sharing app API!"}
