@@ -6,7 +6,7 @@ from app.models.user import User
 from app.utils.hash_password import hash_password,verify_password
 from app.utils.create_token import create_token,decode_token
 from app.utils.imagekit import upload_file_on_imagekit
-from backend.app.deps.auth import get_current_user
+from app.deps.auth import get_current_user
 
 router = APIRouter(prefix="/auth")
 
