@@ -1,10 +1,11 @@
 from fastapi import APIRouter,Depends,File,Form,UploadFile,HTTPException
-from backend.app.schemas.post_route import PostCreate
+from app.schemas.post_route import PostCreate
 from app.db.session import get_db
 from sqlalchemy.orm import Session
-from backend.app.models.post_model import Post
-from backend.app.deps.auth_dep import get_current_user
+from app.models.post_model import Post
+from app.deps.auth_dep import get_current_user
 from app.utils.imagekit import upload_file_on_imagekit
+
 router = APIRouter(prefix="/posts")
 
 @router.post("/create")
@@ -41,3 +42,24 @@ async def create_post(title: str = Form(...),
         db.rollback()
         print(e)
         raise HTTPException(status_code=500, detail="Post creation failed")
+    
+    
+@router.get("/{id}")
+def get_one_post(id:int,user=Depends(get_current_user),db:Session=Depends(get_db)):
+    try:
+        post = db.query(Post).filter(Post.id==id).first()
+        if not post:
+            return {
+                "message":"Post not found",
+                "success":False
+            }
+        return {
+             "message":"Post fetch successfully",
+             "success":True,
+             "data":post
+        }
+    except HTTPException as e:
+        db.rollback()
+        print(e)
+        raise HTTPException(status_code=505,detail="Post can't get")
+        

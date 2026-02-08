@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from backend.app.routes import user_route
-from backend.app.routes import post_route
+from app.routes import user_route
+from app.routes import post_route
 from app.db.init_db import create_tables
 
 create_tables()
