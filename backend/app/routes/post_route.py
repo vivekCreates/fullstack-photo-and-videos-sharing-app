@@ -1,9 +1,9 @@
 from fastapi import APIRouter,Depends,File,Form,UploadFile,HTTPException
-from app.schemas.post import PostCreate
+from backend.app.schemas.post_route import PostCreate
 from app.db.session import get_db
 from sqlalchemy.orm import Session
-from app.models.post import Post
-from app.deps.auth import get_current_user
+from backend.app.models.post_model import Post
+from backend.app.deps.auth_dep import get_current_user
 from app.utils.imagekit import upload_file_on_imagekit
 router = APIRouter(prefix="/posts")
 

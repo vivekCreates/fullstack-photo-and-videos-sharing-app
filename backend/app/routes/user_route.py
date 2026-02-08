@@ -1,12 +1,12 @@
 from fastapi import APIRouter,Depends,HTTPException,Response,Request,UploadFile,File
-from app.schemas.user import UserCreate,UserLogin
+from backend.app.schemas.user_route import UserCreate,UserLogin
 from sqlalchemy.orm import Session
 from app.db.session import get_db
-from app.models.user import User
+from backend.app.models.user_model import User
 from app.utils.hash_password import hash_password,verify_password
 from app.utils.create_token import create_token
 from app.utils.imagekit import upload_file_on_imagekit
-from app.deps.auth import get_current_user
+from backend.app.deps.auth_dep import get_current_user
 
 router = APIRouter(prefix="/auth")
 
