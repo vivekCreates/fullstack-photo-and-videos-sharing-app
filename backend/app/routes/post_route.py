@@ -69,10 +69,7 @@ def get_one_post(id:int,user=Depends(get_current_user),db:Session=Depends(get_db
 def get_posts(user=Depends(get_current_user),db:Session=Depends(get_db)):
     try:
         posts = db.query(Post).all()
-        if not posts:
-           raise HTTPException(status_code=400,detail="Posts not fetched")
-        else:
-            return {
+        return {
                 "message":"Posts fetched successfully",
                 "data":posts,
                 "success":True
@@ -120,3 +117,29 @@ async def update_post(
         db.rollback()
         print(str(e))
         raise HTTPException(status_code=500,detail=str(e))
+    
+
+@router.delete("/{id}")
+async def delete_post(id:int,user=Depends(get_current_user),db:Session=Depends(get_db)):
+    try:
+        existed_post = db.query(Post).filter(Post.id == id).first()
+        if not existed_post:
+            raise HTTPException(status_code=404,detail="Post not found")
+        
+        if existed_post.user_id != user.id:
+            raise HTTPException(status_code=401,detail="You are not authorized to delted this post")
+        
+        copy_post = existed_post
+        db.delete(existed_post)
+        db.commit()
+        
+        return {
+            "message":"Post deleted successfully",
+            "data":copy_post,
+            "success":True
+        }
+    except HTTPException as e:
+       db.rollback()
+       print(str(e))
+       raise HTTPException(status_code=500,detail=str(e))
+   
