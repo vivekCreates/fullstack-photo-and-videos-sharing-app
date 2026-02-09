@@ -55,23 +55,37 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login")
 def login(user: UserLogin, response: Response, db: Session = Depends(get_db)):
-    print("Run login router")
     try:
         db_user = db.query(User).filter(User.email == user.email).first()
         if not db_user:
-            return {"statusCode": 400, "message": "Invalid email or password"}
+            return ApiResponse(
+                statusCode=400,
+                message="Invalid credentials"
+            )
+   
         if not verify_password(user.password, db_user.password):
-            print("After hash password")
-            return {"statusCode": 400, "message": "Invalid email or password"}
+            return ApiResponse(
+                statusCode=400,
+                message="Invalid credentials"
+            )
         token = create_token({"email": db_user.email})
 
         response.set_cookie(
             key="token", value=token, httponly=True, secure=False, samesite="lax"
         )
-        return {"statusCode": 200, "message": "Login successful", "token": token}
+        return ApiResponse(
+                statusCode=200,
+                message="Login successful",
+                data={"user":user_to_dict(db_user),"token":token}
+            )
     except Exception as e:
+        db.rollback()
         print(e)
-        raise HTTPException(status_code=500, detail="Login failed")
+        return ApiResponse(
+            statusCode=500,
+            message=str(e)
+        )
+   
 
 
 @router.post("/logout")
