@@ -9,7 +9,7 @@ from app.utils.imagekit import upload_file_on_imagekit
 from app.deps.auth_dep import get_current_user
 from app.schemas.response_schema import ApiResponse
 from fastapi.responses import JSONResponse
-
+from app.utils.convert_in_dict import user_to_dict
 
 router = APIRouter(prefix="/auth")
 
@@ -39,7 +39,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
         return ApiResponse(
                 statusCode=200,
                 message="User registered successfully",
-                data=dict(new_user)
+                data=user_to_dict(new_user)
             ),
         
 
