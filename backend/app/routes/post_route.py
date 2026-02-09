@@ -6,7 +6,7 @@ from app.models.post_model import Post
 from app.deps.auth_dep import get_current_user
 from app.utils.imagekit import upload_file_on_imagekit
 from app.schemas.post_schema import PostUpdate
-
+from app.schemas.response_schema import ApiResponse
 router = APIRouter(prefix="/posts")
 
 @router.post("/create")
