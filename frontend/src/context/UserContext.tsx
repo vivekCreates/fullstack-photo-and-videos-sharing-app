@@ -75,7 +75,27 @@ export const UserContextProvider = ({children}:{children:React.ReactNode}) =>{
             alert(error.message)
         }
     }
-    const logout = async() => {}
+    const logout = async() => {
+        try {
+            const response = await fetch(`${URL}/logout`,
+                {
+                    method:"POST",
+                    headers:{
+                        "Content-Type":"application/json"
+                    },
+                }
+            )
+            const data = await response.json()
+            if (!data.success){
+                alert(data.message)
+            }
+            localStorage.removeItem("token")
+            setToken("")
+            setIsLoggedIn(false)
+        } catch (error:any) {
+            alert(error.message)
+        }
+    }
 
     return <UserContext.Provider value={{register,login,logout,isLoggedIn,user,token}}>
         {children}
