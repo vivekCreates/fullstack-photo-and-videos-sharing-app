@@ -110,3 +110,19 @@ async def upload_file(file: UploadFile = File(...),user=Depends(get_current_user
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
+@router.get("/me")
+async def get_logged_in_user(user=Depends(get_current_user),db:Session=Depends(get_db)):
+    try:
+        current_user = db.query(User).filter(User.id == user.id).first()
+        if not current_user:
+            raise HTTPException(status_code=404,detail="User not found")
+        else:
+            return {
+                "message":"User fetched successfully",
+                "data":current_user,
+                "success":True
+            }
+    except HTTPException as e:
+        db.rollback()
+        print(str(e))
+        raise HTTPException(status_code=500,detail=str(e))
