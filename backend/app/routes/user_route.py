@@ -1,5 +1,5 @@
 from fastapi import APIRouter,Depends,HTTPException,Response,Request,UploadFile,File
-from app.schemas.user_route import UserCreate,UserLogin
+from app.schemas.user_schema import UserCreate,UserLogin
 from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.models.user_model import User
@@ -91,9 +91,9 @@ def logout(response:Response):
         'statusCode':200
     }
 
-@router.post("/upload-avatar")
+@router.patch("/upload-avatar")
 async def upload_file(file: UploadFile = File(...),user=Depends(get_current_user),db:Session = Depends(get_db)):
-    print("user: ",user)
+ 
     try:
         response = await upload_file_on_imagekit(file)
         if not response:
