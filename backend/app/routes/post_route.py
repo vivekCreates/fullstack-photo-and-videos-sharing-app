@@ -63,3 +63,21 @@ def get_one_post(id:int,user=Depends(get_current_user),db:Session=Depends(get_db
         print(e)
         raise HTTPException(status_code=505,detail="Post can't get")
         
+        
+@router.get("/")
+def get_posts(user=Depends(get_current_user),db:Session=Depends(get_db)):
+    try:
+        posts = db.query(Post).all()
+        if not posts:
+           raise HTTPException(status_code=400,detail="Posts not fetched")
+        else:
+            return {
+                "message":"Posts fetched successfully",
+                "data":posts,
+                "success":True
+            }
+    except HTTPException as e:
+        db.rollback()
+        print(str(e))
+        raise HTTPException(status_code=500,detail=str(e))
+        
