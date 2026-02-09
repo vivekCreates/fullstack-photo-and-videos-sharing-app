@@ -1,5 +1,6 @@
 import { createContext, useContext, useState } from "react";
 import type { User, UserLogin, UserRegister } from "../types/user";
+import { useNavigate } from "react-router";
 
 type UserContextType = {
     isLoggedIn:boolean,
@@ -25,6 +26,7 @@ export const UserContextProvider = ({children}:{children:React.ReactNode}) =>{
 
     const [user,setUser] = useState<User|null>(null);
     const [isLoggedIn,setIsLoggedIn] = useState(false)
+    const [token,setToken] = useState("")
 
     const register = async(user:UserRegister) => {
         try {
@@ -39,10 +41,10 @@ export const UserContextProvider = ({children}:{children:React.ReactNode}) =>{
             )
 
             const data = await response.json()
+            console.log("data: ",data)
             if (!data.success){
                 throw new Error(data.message)
             }
-
             alert(data.message)
         } catch (error:any) {
             alert(error.message)
@@ -50,7 +52,7 @@ export const UserContextProvider = ({children}:{children:React.ReactNode}) =>{
     }
     const login = async(user:UserLogin) => {
          try {
-            const response = await fetch(`${URL}/register`,
+            const response = await fetch(`${URL}/login`,
                 {
                     method:"POST",
                     headers:{
@@ -64,8 +66,9 @@ export const UserContextProvider = ({children}:{children:React.ReactNode}) =>{
             if (!data.success){
                 throw new Error(data.message)
             }
-            localStorage.setItem("token",data.token)
+            localStorage.setItem("token",data.data.token)
             setIsLoggedIn(true)
+            setToken(data.data.token)
             setUser(data.data.user)
             alert(data.message)
         } catch (error:any) {

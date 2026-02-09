@@ -40,7 +40,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
                 statusCode=200,
                 message="User registered successfully",
                 data=user_to_dict(new_user)
-            ).model_dump(),
+            ).model_dump()
         
 
     except Exception as e:

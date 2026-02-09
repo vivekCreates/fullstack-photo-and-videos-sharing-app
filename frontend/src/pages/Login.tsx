@@ -1,12 +1,14 @@
 import React, { useState } from 'react'
 import type { UserLogin } from '../types/user';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
+import { useAuth } from '../context/UserContext';
 
 function Login() {
     const [user, setUser] = useState<UserLogin>({
         email: "",
         password: ""
     })
+    const navigate = useNavigate()
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -15,6 +17,17 @@ function Login() {
             [name]: value
         }))
         console.log(user)
+    }
+    const {login} = useAuth()
+
+    const handleSumbit = async(e: React.FormEvent<HTMLFormElement>)=>{
+        e.preventDefault();
+
+        if (!user.email || !user.password){
+            alert("All fields are required")
+        }
+        login(user)
+        // navigate("/")
     }
 
     return (
@@ -32,7 +45,7 @@ function Login() {
         </p>
       </div>
 
-      <form className="space-y-5">
+      <form className="space-y-5" onSubmit={handleSumbit}>
 
         <input
           type="email"

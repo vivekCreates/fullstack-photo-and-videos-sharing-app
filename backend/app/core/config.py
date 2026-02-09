@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
 
     # CORS (IMPORTANT: str here)
-    ALLOWED_ORIGINS: str = ""
+    ALLOWED_ORIGINS: str= "http://localhost:5173"
 
     @property
     def database_url(self) -> str:
