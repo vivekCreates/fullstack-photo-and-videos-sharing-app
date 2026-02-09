@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import type { UserLogin } from '../types/user';
 import { Link } from 'react-router';
 
-export async function Login() {
+function Login() {
     const [user, setUser] = useState<UserLogin>({
         email: "",
         password: ""
@@ -59,11 +59,11 @@ export async function Login() {
         </button>
       </form>
 
-      <div className="mt-8 text-center">
+      <div className="mt-8 text-center flex items-center gap-1">
         <p>
           If you dont have an account?{" "}
         </p>
-        <Link to={"/regsiter"} className="text-sm text-zinc-400">
+        <Link to={"/register"} className="text-sm text-zinc-400">
           <span className="text-blue-400 hover:underline cursor-pointer">
             Sign up
           </span>

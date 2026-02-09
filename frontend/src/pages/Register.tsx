@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import type { UserRegister } from '../types/user'
+import { Link } from 'react-router';
 
 function Register() {
     const [user, setUser] = useState<UserRegister>({
@@ -68,13 +69,15 @@ function Register() {
         </button>
       </form>
 
-      <div className="mt-8 text-center">
+      <div className="mt-8 text-center flex items-center gap-1">
         <p className="text-sm text-zinc-400">
           Already have an account?{" "}
+        </p>
+        <Link to={"/login"}>
           <span className="text-blue-400 hover:underline cursor-pointer">
             Sign in
           </span>
-        </p>
+        </Link>
       </div>
 
     </div>
