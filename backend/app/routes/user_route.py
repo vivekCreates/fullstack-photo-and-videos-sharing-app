@@ -70,8 +70,14 @@ def login(user: UserLogin, response: Response, db: Session = Depends(get_db)):
             )
         token = create_token({"email": db_user.email})
 
+        
         response.set_cookie(
-            key="token", value=token, httponly=True, secure=False, samesite="lax"
+        key="token",
+        value=token,
+        httponly=True,
+        secure=False,    
+        samesite="lax",
+        path="/"
         )
         return ApiResponse(
                 statusCode=200,
@@ -90,8 +96,25 @@ def login(user: UserLogin, response: Response, db: Session = Depends(get_db)):
 
 @router.post("/logout")
 def logout(response: Response):
-    response.delete_cookie(key="token", httponly=True, secure=False, samesite="lax")
-    return {"message": "Logout successfully", "statusCode": 200}
+    try:
+        response.delete_cookie(
+        key="token",
+        path="/",
+        httponly=True,
+        secure=False,
+        samesite="lax",
+    )
+        return ApiResponse(
+            statusCode=200,
+            message="Logout successfully"
+        )
+   
+    except HTTPException as e:
+        print(e)
+        return ApiResponse(
+            statusCode=500,
+            message=str(e)
+        )
 
 
 @router.patch("/upload-avatar")
@@ -119,20 +142,19 @@ async def upload_file(
 
 
 @router.get("/me")
-async def get_logged_in_user(
-    user=Depends(get_current_user), db: Session = Depends(get_db)
+def get_logged_in_user(
+    user=Depends(get_current_user),
+    db: Session = Depends(get_db)
 ):
-    try:
-        current_user = db.query(User).filter(User.id == user.id).first()
-        if not current_user:
-            raise HTTPException(status_code=404, detail="User not found")
-        else:
-            return {
-                "message": "User fetched successfully",
-                "data": current_user,
-                "success": True,
-            }
-    except HTTPException as e:
-        db.rollback()
-        print(str(e))
-        raise HTTPException(status_code=500, detail=str(e))
+    current_user = db.query(User).filter(User.id == user.id).first()
+
+    if not current_user:
+        return ApiResponse(
+            statusCode=404,
+            message="User not found"
+        )
+    return ApiResponse(
+        message= "User fetched successfully",
+        data= current_user,
+        statusCode=200
+    )

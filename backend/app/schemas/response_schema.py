@@ -13,3 +13,4 @@ class ApiResponse(BaseModel):
     def mark_success_true(cls,values):
         if values.statusCode < 400:
             values.success = True
+        return values
