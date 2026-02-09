@@ -22,7 +22,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
             return ApiResponse(
                     statusCode=409,
                     message="User already exists"
-                )
+                ).model_dump()
 
         hashed_password = hash_password(user.password)
         new_user = User(
@@ -40,7 +40,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
                 statusCode=200,
                 message="User registered successfully",
                 data=user_to_dict(new_user)
-            ),
+            ).model_dump(),
         
 
     except Exception as e:
@@ -49,7 +49,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
         return ApiResponse(
             statusCode=500,
             message=str(e)
-        )
+        ).model_dump()
         
 
 
@@ -61,13 +61,13 @@ def login(user: UserLogin, response: Response, db: Session = Depends(get_db)):
             return ApiResponse(
                 statusCode=400,
                 message="Invalid credentials"
-            )
+            ).model_dump()
    
         if not verify_password(user.password, db_user.password):
             return ApiResponse(
                 statusCode=400,
                 message="Invalid credentials"
-            )
+            ).model_dump()
         token = create_token({"email": db_user.email})
 
         
@@ -83,14 +83,14 @@ def login(user: UserLogin, response: Response, db: Session = Depends(get_db)):
                 statusCode=200,
                 message="Login successful",
                 data={"user":user_to_dict(db_user),"token":token}
-            )
+            ).model_dump()
     except Exception as e:
         db.rollback()
         print(e)
         return ApiResponse(
             statusCode=500,
             message=str(e)
-        )
+        ).model_dump()
    
 
 
@@ -107,14 +107,14 @@ def logout(response: Response):
         return ApiResponse(
             statusCode=200,
             message="Logout successfully"
-        )
+        ).model_dump()
    
     except HTTPException as e:
         print(e)
         return ApiResponse(
             statusCode=500,
             message=str(e)
-        )
+        ).model_dump()
 
 
 @router.patch("/upload-avatar")
@@ -127,18 +127,27 @@ async def upload_file(
     try:
         response = await upload_file_on_imagekit(file)
         if not response:
-            raise HTTPException(status_code=500, detail="File upload failed")
+            return ApiResponse(
+                statusCode=500,
+                message="File upload failed"
+                ).model_dump()
         else:
             user.profile_image = response["url"]
             db.commit()
             db.refresh(user)
-
-            return {
-                "message": "File uploaded successfully",
-                "file_url": response["url"],
-            }
+            return ApiResponse(
+                statusCode=200,
+                message="File upload successfully",
+                data=response["url"]
+                ).model_dump()
+            
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        db.rollback()
+        print(e)
+        return ApiResponse(
+                statusCode=500,
+                message=str(e),
+                ).model_dump()
 
 
 @router.get("/me")
@@ -152,9 +161,9 @@ def get_logged_in_user(
         return ApiResponse(
             statusCode=404,
             message="User not found"
-        )
+        ).model_dump()
     return ApiResponse(
         message= "User fetched successfully",
         data= current_user,
         statusCode=200
-    )
+    ).model_dump()

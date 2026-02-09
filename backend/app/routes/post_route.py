@@ -41,14 +41,14 @@ async def create_post(title: str = Form(...),
             message="Post created successfully",
             data= post_to_dict(new_post),
             statusCode=200
-        )
+        ).model_dump()
     except Exception as e:
         db.rollback()
         print(e)
         return ApiResponse(
             message=str(e),
             statusCode=500
-        )
+        ).model_dump()
     
     
 @router.get("/{id}")
@@ -59,19 +59,19 @@ def get_one_post(id:int,user=Depends(get_current_user),db:Session=Depends(get_db
             return ApiResponse(
             message="Post not found",
             statusCode=404
-        ) 
+        ) .model_dump()
         return ApiResponse(
             message="Post fetch successfully",
             data= post_to_dict(post),
             statusCode=200
-        )
+        ).model_dump()
     except HTTPException as e:
         db.rollback()
         print(e)
         return ApiResponse(
             message=str(e),
             statusCode=500
-        )
+        ).model_dump()
         
         
 @router.get("/")
@@ -82,7 +82,7 @@ def get_posts(user=Depends(get_current_user),db:Session=Depends(get_db)):
             message="Post created successfully",
             data= posts,
             statusCode=200
-        )
+        ).model_dump()
 
     except HTTPException as e:
         db.rollback()
@@ -90,7 +90,7 @@ def get_posts(user=Depends(get_current_user),db:Session=Depends(get_db)):
         return ApiResponse(
             message=str(e),
             statusCode=500
-        )
+        ).model_dump()
         
 @router.patch("/{id}")
 async def update_post(
@@ -108,13 +108,13 @@ async def update_post(
             return ApiResponse(
             message="Post not found",
             statusCode=404
-        )
+        ).model_dump()
         
         if existed_post.user_id != user.id:
             return ApiResponse(
             message="You are not authenicated to update this post",
             statusCode=400
-        )
+        ).model_dump()
         else:
             if file:
                 uploaded = await upload_file_on_imagekit(file)
@@ -132,14 +132,14 @@ async def update_post(
             message="Post updated successfully",
             data=post_to_dict(existed_post),
             statusCode=200
-        )
+        ).model_dump()
     except HTTPException as e:
         db.rollback()
         print(str(e))
         return ApiResponse(
             message=str(e),
             statusCode=500
-        )
+        ).model_dump()
     
 
 @router.delete("/{id}")
@@ -150,13 +150,13 @@ async def delete_post(id:int,user=Depends(get_current_user),db:Session=Depends(g
             return ApiResponse(
             message="Post not found",
             statusCode=404
-        )
+        ).model_dump()
         
         if existed_post.user_id != user.id:
             return ApiResponse(
             message="You are not authenicated to update this post",
             statusCode=400
-        )
+        ).model_dump()
         
         copy_post = existed_post
         db.delete(existed_post)
@@ -166,7 +166,7 @@ async def delete_post(id:int,user=Depends(get_current_user),db:Session=Depends(g
             message="Post deleted successfully",
             statusCode=200,
             data=post_to_dict(copy_post)
-        )
+        ).model_dump()
        
     except HTTPException as e:
        db.rollback()
@@ -174,4 +174,4 @@ async def delete_post(id:int,user=Depends(get_current_user),db:Session=Depends(g
     return ApiResponse(
             message=str(e),
             statusCode=200,
-        )
+        ).model_dump()
