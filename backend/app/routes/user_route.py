@@ -7,6 +7,7 @@ from app.utils.hash_password import hash_password,verify_password
 from app.utils.create_token import create_token
 from app.utils.imagekit import upload_file_on_imagekit
 from app.deps.auth_dep import get_current_user
+from app.utils.responses import ApiResponse
 
 router = APIRouter(prefix="/auth")
 
@@ -15,7 +16,11 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     try:
         existed_user = db.query(User).filter(User.email == user.email).first()
         if existed_user:
-            return{
+            return ApiResponse(
+                statusCode=400,
+                message="User already exists"
+            ) 
+        {
                 'statusCode':400,
                 'message': 'Email already registered'   
             }
