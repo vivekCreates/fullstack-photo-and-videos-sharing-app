@@ -1,1 +1,13 @@
 @import "tailwindcss";
+
+
+*{
+    box-sizing: border-box;
+    font-family:'poppins';
+}
+html,body{
+    height: 100%;
+    width: 100%;
+    background-color: black;
+    color:white
+}
