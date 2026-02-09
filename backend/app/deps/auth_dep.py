@@ -3,22 +3,25 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.models.user_model import User
 from app.utils.create_token import decode_token
-
+from jose import ExpiredSignatureError,JWTError
 def get_current_user(
     request: Request,
     db: Session = Depends(get_db)
 ):
-    token = request.cookies.get("token")
-    if not token:
-        auth_header = request.headers.get("Authorization")
-        if auth_header and auth_header.startswith("Bearer "):
-            token = auth_header.split(" ")[1]
+    try:
+        token = request.cookies.get("token")
+        
+        if not token:
+            auth_header = request.headers.get("Authorization")
+            if auth_header and auth_header.startswith("Bearer "):
+                token = auth_header.split(" ")[1]
 
-    if not token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authenticated"
-        )
+    except ExpiredSignatureError:
+        raise HTTPException(401, "Access token expired")
+
+    except JWTError:
+        raise HTTPException(401, "Invalid token")
+
 
     payload = decode_token(token)
     print("Decoded payload: ", payload)

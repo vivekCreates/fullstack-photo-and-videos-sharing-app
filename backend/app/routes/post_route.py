@@ -7,6 +7,9 @@ from app.deps.auth_dep import get_current_user
 from app.utils.imagekit import upload_file_on_imagekit
 from app.schemas.post_schema import PostUpdate
 from app.schemas.response_schema import ApiResponse
+from app.utils.convert_in_dict import post_to_dict
+
+
 router = APIRouter(prefix="/posts")
 
 @router.post("/create")
@@ -34,15 +37,18 @@ async def create_post(title: str = Form(...),
         db.commit()
         db.refresh(new_post)
         
-        return {
-            "message":"Post created successfully",
-            "data": new_post,
-            "success":True
-        }
+        return ApiResponse(
+            message="Post created successfully",
+            data= post_to_dict(new_post),
+            statusCode=200
+        )
     except Exception as e:
         db.rollback()
         print(e)
-        raise HTTPException(status_code=500, detail="Post creation failed")
+        return ApiResponse(
+            message=str(e),
+            statusCode=500
+        )
     
     
 @router.get("/{id}")
@@ -50,34 +56,41 @@ def get_one_post(id:int,user=Depends(get_current_user),db:Session=Depends(get_db
     try:
         post = db.query(Post).filter(Post.id==id).first()
         if not post:
-            return {
-                "message":"Post not found",
-                "success":False
-            }
-        return {
-             "message":"Post fetch successfully",
-             "success":True,
-             "data":post
-        }
+            return ApiResponse(
+            message="Post not found",
+            statusCode=404
+        ) 
+        return ApiResponse(
+            message="Post fetch successfully",
+            data= post_to_dict(post),
+            statusCode=200
+        )
     except HTTPException as e:
         db.rollback()
         print(e)
-        raise HTTPException(status_code=505,detail="Post can't get")
+        return ApiResponse(
+            message=str(e),
+            statusCode=500
+        )
         
         
 @router.get("/")
 def get_posts(user=Depends(get_current_user),db:Session=Depends(get_db)):
     try:
         posts = db.query(Post).all()
-        return {
-                "message":"Posts fetched successfully",
-                "data":posts,
-                "success":True
-            }
+        return ApiResponse(
+            message="Post created successfully",
+            data= posts,
+            statusCode=200
+        )
+
     except HTTPException as e:
         db.rollback()
         print(str(e))
-        raise HTTPException(status_code=500,detail=str(e))
+        return ApiResponse(
+            message=str(e),
+            statusCode=500
+        )
         
 @router.patch("/{id}")
 async def update_post(
@@ -92,10 +105,16 @@ async def update_post(
         existed_post = db.query(Post).filter(Post.id == id).first()
         
         if not existed_post:
-            raise HTTPException(status_code=404,detail="Post not found")
+            return ApiResponse(
+            message="Post not found",
+            statusCode=404
+        )
         
         if existed_post.user_id != user.id:
-            raise HTTPException(status_code=400,detail="You are not authenicated to update this post")
+            return ApiResponse(
+            message="You are not authenicated to update this post",
+            statusCode=400
+        )
         else:
             if file:
                 uploaded = await upload_file_on_imagekit(file)
@@ -108,15 +127,19 @@ async def update_post(
                 
             db.commit()
             db.refresh(existed_post)
-            return {
-                "message":"Post updated successfully",
-                "data":existed_post,
-                "success":True
-            }
+            
+            return ApiResponse(
+            message="Post updated successfully",
+            data=post_to_dict(existed_post),
+            statusCode=200
+        )
     except HTTPException as e:
         db.rollback()
         print(str(e))
-        raise HTTPException(status_code=500,detail=str(e))
+        return ApiResponse(
+            message=str(e),
+            statusCode=500
+        )
     
 
 @router.delete("/{id}")
@@ -124,22 +147,31 @@ async def delete_post(id:int,user=Depends(get_current_user),db:Session=Depends(g
     try:
         existed_post = db.query(Post).filter(Post.id == id).first()
         if not existed_post:
-            raise HTTPException(status_code=404,detail="Post not found")
+            return ApiResponse(
+            message="Post not found",
+            statusCode=404
+        )
         
         if existed_post.user_id != user.id:
-            raise HTTPException(status_code=401,detail="You are not authorized to delted this post")
+            return ApiResponse(
+            message="You are not authenicated to update this post",
+            statusCode=400
+        )
         
         copy_post = existed_post
         db.delete(existed_post)
         db.commit()
         
-        return {
-            "message":"Post deleted successfully",
-            "data":copy_post,
-            "success":True
-        }
+        return ApiResponse(
+            message="Post deleted successfully",
+            statusCode=200,
+            data=post_to_dict(copy_post)
+        )
+       
     except HTTPException as e:
        db.rollback()
        print(str(e))
-       raise HTTPException(status_code=500,detail=str(e))
-   
+    return ApiResponse(
+            message=str(e),
+            statusCode=200,
+        )
