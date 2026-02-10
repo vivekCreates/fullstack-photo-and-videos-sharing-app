@@ -3,7 +3,7 @@ import { useAuth } from "../context/UserContext";
 
 const PublicRoute = () => {
   const {isLoggedIn} = useAuth()
-  return isLoggedIn ? <Navigate to="/home" replace /> : <Outlet />;
+  return isLoggedIn ? <Navigate to="/" replace /> : <Outlet />;
 };
 
 export default PublicRoute;
