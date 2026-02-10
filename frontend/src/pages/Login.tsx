@@ -27,7 +27,7 @@ function Login() {
             alert("All fields are required")
         }
         login(user)
-        // navigate("/")
+        navigate("/")
     }
 
     return (

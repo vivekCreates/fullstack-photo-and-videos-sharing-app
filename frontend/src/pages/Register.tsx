@@ -31,7 +31,7 @@ function Register() {
             alert("All fields are required")
         }
         register(user)
-        // navigate("/login")
+        navigate("/login")
     }
 
 
