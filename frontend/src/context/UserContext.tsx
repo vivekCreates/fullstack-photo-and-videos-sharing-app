@@ -1,10 +1,10 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import type { User, UserLogin, UserRegister } from "../types/user";
 import { useNavigate } from "react-router";
 
 type UserContextType = {
     isLoggedIn:boolean,
-    token:string,
+    token:string|null,
     user:User | null
     register:(user:UserRegister)=>void,
     login:(user:UserLogin)=>void,
@@ -26,7 +26,40 @@ export const UserContextProvider = ({children}:{children:React.ReactNode}) =>{
 
     const [user,setUser] = useState<User|null>(null);
     const [isLoggedIn,setIsLoggedIn] = useState(false)
-    const [token,setToken] = useState("")
+    const [token,setToken] = useState<string|null>(localStorage.getItem("token"))
+
+useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      const resposne = await fetch(`${URL}/me`, {
+          method:"GET",
+          credentials: "include",
+          headers:{
+            Authorization:`Bearer ${token}`
+        }
+      });
+      
+      const data = await resposne.json();
+      console.log(data)
+
+      if (!data.success){
+        alert(data.message)
+
+      }
+      console.log(data)
+      setIsLoggedIn(true)
+      setUser(data);
+      console.log("token: ",token)
+    } catch(error:any) {
+    alert(error.message)
+      setUser(null);
+      setToken("")
+    }
+  };
+
+  fetchUser();
+}, []);
+
 
     const register = async(user:UserRegister) => {
         try {
