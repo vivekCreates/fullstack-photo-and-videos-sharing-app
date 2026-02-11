@@ -1,10 +1,12 @@
 import React from 'react'
 import Navbar from '../components/Navbar'
+import PostSection from '../components/PostSection'
 
 function Home() {
   return (
-    <div className='w-full flex flex-col items-center'>
+    <div className='w-full flex flex-col gap-20 items-center'>
       <Navbar/>
+      <PostSection/>
     </div>
   )
 }
