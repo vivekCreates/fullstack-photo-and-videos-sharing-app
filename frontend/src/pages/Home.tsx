@@ -1,8 +1,11 @@
 import React from 'react'
+import Navbar from '../components/Navbar'
 
 function Home() {
   return (
-    <div>Home</div>
+    <div className='w-full flex flex-col items-center'>
+      <Navbar/>
+    </div>
   )
 }
 
