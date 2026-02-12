@@ -3,8 +3,8 @@ export type PostType = {
     title:string,
     description:string,
     file:string,
-    created_at:Date,
-    update_at:Date,
+    createdAt:Date,
+    updateAt:Date,
     user:{
         id:number,
         name:string,

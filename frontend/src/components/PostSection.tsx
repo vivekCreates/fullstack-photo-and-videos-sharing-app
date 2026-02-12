@@ -13,13 +13,13 @@ function PostSection() {
       posts.map((post)=>(
         <PostCard 
         key={post.id}
-        username={post.user.name}
+        name={post.user.name}
         id ={post.id} 
         title={post.title} 
         description={post.description}
         postImage={post.file}
         profileImage={post.user.profileImage}
-
+        userId={post.user.id}
         />
       ))
     }

@@ -4,7 +4,6 @@ import { useAuth } from "./UserContext"
 
 
 
-
 type PostContextType = {
     posts: PostType[] | [],
     createPost: (postData: FormData) => {}
@@ -49,6 +48,7 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
                 throw new Error(data.message || "Something went wrong")
             }
             setPosts(data.data)
+            console.log("data: ",data.data)
         } catch (error:any) {
             console.log(error.message)
         }
@@ -67,8 +67,8 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
             title: postData.get("title") as string,
             description: postData.get("description") as string,
             file: postData.get("file") as string,
-            created_at: now,
-            update_at: now,
+            createdAt: now,
+            updateAt: now,
             user:{
                 id:user.id,
                 name:user.name,

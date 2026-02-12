@@ -1,22 +1,26 @@
 import { useState, useRef, useEffect } from "react";
 import { MoreVertical } from "lucide-react";
+import { randomColor } from "../utils/utility";
+import { useAuth } from "../context/UserContext";
 
 type PostCardProps = {
   id: number;
-  username: string;
+  name: string;
   title: string;
   description: string;
   postImage: string;
   profileImage:string;
+  userId:number
 };
 
 export const PostCard = ({
   id,
-  username,
+  name,
   title,
   description,
   postImage,
   profileImage,
+  userId
 }: PostCardProps) => {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -31,23 +35,34 @@ export const PostCard = ({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+  const {user} = useAuth()
+ 
 
   return (
     <div className="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition duration-200 relative">
-
       <div className="flex items-center justify-between px-3 py-2">
-        <div className="flex items-center gap-2">
-          <img
+        <div className="flex items-center gap-2 ">
+          {
+            profileImage ? (<img
             src={profileImage}
-            alt={username}
+            alt={name}
             className="w-8 h-8 rounded-full object-cover"
-          />
+          />)
+          :
+              (
+                <div className="w-8 h-8 rounded-full object-cover flex items-center justify-center bg-[#222222] ">
+                    {name[0].toUpperCase()}
+                </div>
+              )
+          }
+          
           <h3 className="text-sm font-medium text-zinc-200">
-            @{username}
+            @{name}
           </h3>
         </div>
-
-        <div className="relative" ref={menuRef}>
+          {
+            userId == user?.id && (
+              <div className="relative" ref={menuRef}>
           <button
             onClick={() => setOpen(!open)}
             className="p-1.5 rounded-full hover:bg-zinc-800 transition"
@@ -66,6 +81,9 @@ export const PostCard = ({
             </div>
           )}
         </div>
+            )
+          }
+        
       </div>
 
       <img

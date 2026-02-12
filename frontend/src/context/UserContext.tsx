@@ -48,7 +48,7 @@ useEffect(() => {
       }
       console.log(data)
       setIsLoggedIn(true)
-      setUser(data);
+      setUser(data.data);
       console.log("token: ",token)
     } catch(error:any) {
     alert(error.message)
