@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { usePost } from "../context/PostContext";
+import { useNavigate } from "react-router";
 
 export default function CreatePostPage() {
   const [title, setTitle] = useState("");
@@ -6,6 +8,8 @@ export default function CreatePostPage() {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
 
+  const {createPost} = usePost()
+const navigate = useNavigate()
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
     if (!selected) return;
@@ -22,7 +26,16 @@ export default function CreatePostPage() {
     formData.append("description", description);
     if (file) formData.append("file", file);
 
-    console.log("FormData Ready:", formData);
+    createPost(formData);
+
+    setTitle("")
+    setDescription("")
+    setFile(null)
+    setPreview("")
+    
+    navigate("/")
+
+    
   };
 
   return (

@@ -5,6 +5,7 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import ProtectedRoute from './pages/Protected'
 import PublicRoute from './pages/Public'
+import CreatePostPage from './pages/CreatePost'
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
       <Routes>
         <Route element={<ProtectedRoute/>}>
         <Route path='/' element={<Home />} />
+        <Route path='/create' element={<CreatePostPage />} />
         </Route>
 
         <Route element={<PublicRoute/>}>

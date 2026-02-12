@@ -1,4 +1,4 @@
-import { createContext, useState } from "react"
+import { createContext, useContext, useState } from "react"
 import type { PostType } from "../types/post"
 import { useAuth } from "./UserContext"
 
@@ -25,11 +25,13 @@ const PostContext = createContext<PostContextType>({
 
 const URL = "http://localhost:8000/api/posts"
 
-export const PostContextProvider = async ({ children }: { children: React.ReactNode }) => {
+export const PostContextProvider = ({ children }: { children: React.ReactNode }) => {
     const { token, user } = useAuth();
     const [posts, setPosts] = useState<PostType[] | []>([])
 
     const createPost = async (postData: FormData) => {
+        console.log("run")
+        console.log("User: ",user)
         if (!user || !token) return;
 
         const tempId = Date.now();
@@ -73,6 +75,7 @@ export const PostContextProvider = async ({ children }: { children: React.ReactN
                 )
             );
 
+            alert(data.message)
         } catch (error: any) {
             setPosts((prev) => prev.filter((p) => p.id !== tempId));
             console.error("Create Post Error:", error.message);
@@ -157,3 +160,5 @@ export const PostContextProvider = async ({ children }: { children: React.ReactN
         {children}
     </PostContext.Provider>
 }
+
+export const usePost = () => useContext(PostContext)
