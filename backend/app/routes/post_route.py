@@ -1,8 +1,9 @@
 from fastapi import APIRouter,Depends,File,Form,UploadFile,HTTPException
 from app.schemas.post_schema import PostCreate
 from app.db.session import get_db
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session,joinedload
 from app.models.post_model import Post
+from app.models.user_model import User
 from app.deps.auth_dep import get_current_user
 from app.utils.imagekit import upload_file_on_imagekit
 from app.schemas.post_schema import PostUpdate
@@ -77,10 +78,31 @@ def get_one_post(id:int,user=Depends(get_current_user),db:Session=Depends(get_db
 @router.get("/")
 def get_posts(user=Depends(get_current_user),db:Session=Depends(get_db)):
     try:
-        posts = db.query(Post).all()
+        posts = (
+            db.query(Post, User)
+            .join(User, Post.user_id == User.id)
+            .all()
+        )
+
+        result = []
+
+        for post, user in posts:
+            result.append({
+                "id": post.id,
+                "title": post.title,
+                "description": post.description,
+                "file": post.file,
+                "created_at": post.created_at,
+                "user": {
+                    "id": user.id,
+                    "username": user.name,
+                    "avatar": user.profile_image,
+                }
+            })
+
         return ApiResponse(
             message="Post created successfully",
-            data= posts,
+            data= result,
             statusCode=200
         ).model_dump()
 
