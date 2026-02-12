@@ -2,11 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react"
 import type { PostType } from "../types/post"
 import { useAuth } from "./UserContext"
 
-type CreatePostType = {
-    title: string,
-    description: string,
-    file: string
-}
+
 
 
 type PostContextType = {
@@ -71,9 +67,13 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
             title: postData.get("title") as string,
             description: postData.get("description") as string,
             file: postData.get("file") as string,
-            user_id: user.id,
             created_at: now,
             update_at: now,
+            user:{
+                id:user.id,
+                name:user.name,
+                profileImage:String(user.profile_image)
+            }
         };
 
         setPosts((prev) => [...prev, optimisticPost]);

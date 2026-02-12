@@ -4,19 +4,19 @@ import { MoreVertical } from "lucide-react";
 type PostCardProps = {
   id: number;
   username: string;
-  avatar: string;
   title: string;
   description: string;
   postImage: string;
+  profileImage:string;
 };
 
 export const PostCard = ({
   id,
   username,
-  avatar,
   title,
   description,
   postImage,
+  profileImage,
 }: PostCardProps) => {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -38,7 +38,7 @@ export const PostCard = ({
       <div className="flex items-center justify-between px-3 py-2">
         <div className="flex items-center gap-2">
           <img
-            src={avatar}
+            src={profileImage}
             alt={username}
             className="w-8 h-8 rounded-full object-cover"
           />

@@ -5,5 +5,9 @@ export type PostType = {
     file:string,
     created_at:Date,
     update_at:Date,
-    user_id:number
+    user:{
+        id:number,
+        name:string,
+        profileImage:string
+    }
 }
