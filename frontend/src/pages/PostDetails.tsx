@@ -1,7 +1,46 @@
+import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar"
-
+import type { PostType } from "../types/post";
+import toast from "react-hot-toast";
+import { useAuth } from "../context/UserContext";
+import { useParams } from "react-router";
 
 export const PostDetails= () => {
+  const {id} = useParams();
+
+  const [post,setPost] = useState<PostType|null>(null);
+  const {token} = useAuth();
+
+  useEffect(()=>{
+
+      const fetchPost = async() => {
+        try {
+            const response = await fetch(`http://localhost:8000/api/posts/${id}`,{
+                method:"GET",
+                headers:{
+                    "Content-Type":"application/json",
+                    Authorization:`Bearer ${token}`
+                }
+            })
+
+            if (!response.ok){
+                throw new Error("Failed to fetch posts")
+
+            }
+
+            const data = await response.json();
+            if (!data.success){
+                throw new Error(data.message || "Something went wrong")
+            }
+            setPost(data.data)
+            toast.success(data.message)
+        
+        } catch (error:any) {
+            toast.error(error.message)
+        }
+      }
+      fetchPost()
+  },[])
   return (
     <div className="min-h-screen bg-black text-white flex flex-col justify-between items-center">
       <Navbar/>
