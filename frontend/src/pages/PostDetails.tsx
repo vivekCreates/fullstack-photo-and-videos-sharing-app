@@ -5,12 +5,15 @@ import toast from "react-hot-toast";
 import { useAuth } from "../context/UserContext";
 import { useParams } from "react-router";
 import { convertDate } from "../utils/utility";
+import { Loader } from "lucide-react";
 
 export const PostDetails= () => {
   const {id} = useParams();
- console.log("id: ",id)
+
   const [post,setPost] = useState<PostType|null>(null);
   const {token} = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(()=>{
       const fetchPost = async() => {
@@ -38,13 +41,26 @@ export const PostDetails= () => {
         
         } catch (error:any) {
             toast.error(error.message)
+        }finally{
+        setLoading(true)
+        setImageLoaded(true)
         }
       }
       fetchPost()
-  },[])
+  },[id])
+
+
+  const isReady = post && imageLoaded; 
+
   return (
     <div className="min-h-screen bg-black text-white flex flex-col justify-between items-center">
       <Navbar/>
+      {!isReady ? (
+        <div className="text-center absolute top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%]">
+          <Loader/>
+        </div>
+      ):
+      (
       <div className="w-[70%] h-140 mb-10 max-w-6xl bg-zinc-900 rounded-2xl shadow-xl grid grid-cols-1 md:grid-cols-2 overflow-hidden">
 
         <div className="h-96 md:h-auto bg-zinc-800">
@@ -92,6 +108,8 @@ export const PostDetails= () => {
         </div>
 
       </div>
+      )
+    }
 
     </div>
   );
