@@ -8,9 +8,6 @@ type CreatePostType = {
     file: string
 }
 
-type UpdatePostType = CreatePostType & {
-    file: string
-}
 
 type PostContextType = {
     posts: PostType[] | [],
