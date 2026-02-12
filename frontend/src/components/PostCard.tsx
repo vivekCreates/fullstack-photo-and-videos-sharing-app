@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { MoreVertical } from "lucide-react";
-import { randomColor } from "../utils/utility";
 import { useAuth } from "../context/UserContext";
+import { usePost } from "../context/PostContext";
 
 type PostCardProps = {
   id: number;
@@ -36,6 +36,7 @@ export const PostCard = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
   const {user} = useAuth()
+  const {deletePost} = usePost()
  
 
   return (
@@ -75,7 +76,7 @@ export const PostCard = ({
               <button className="w-full text-left px-3 py-1.5 text-xs text-zinc-200 hover:bg-zinc-700 rounded-t-md">
                 Edit
               </button>
-              <button className="w-full text-left px-3 py-1.5 text-xs text-red-400 hover:bg-zinc-700 rounded-b-md">
+              <button onClick={()=>deletePost(id)} className="w-full text-left px-3 py-1.5 text-xs text-red-400 hover:bg-zinc-700 rounded-b-md">
                 Delete
               </button>
             </div>

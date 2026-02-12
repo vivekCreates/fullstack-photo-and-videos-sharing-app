@@ -3,7 +3,8 @@ import { useAuth } from "../context/UserContext";
 
 
 const ProtectedRoute = () => {
-    const {isLoggedIn} = useAuth()
+    const {isLoggedIn,loading} = useAuth()
+    if (loading) return null;
   return isLoggedIn ? <Outlet /> : <Navigate to="/login" replace />;
 };
 

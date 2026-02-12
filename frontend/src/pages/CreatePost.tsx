@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { usePost } from "../context/PostContext";
 import { useNavigate } from "react-router";
-import { randomColor } from "../utils/utility";
 
 export default function CreatePostPage() {
     const [title, setTitle] = useState("");

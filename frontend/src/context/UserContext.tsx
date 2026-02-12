@@ -1,11 +1,13 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { User, UserLogin, UserRegister } from "../types/user";
+import toast from "react-hot-toast";
 
 
 type UserContextType = {
     isLoggedIn:boolean,
     token:string|null,
-    user:User | null
+    user:User | null,
+    loading:boolean,
     register:(user:UserRegister)=>void,
     login:(user:UserLogin)=>void,
     logout:()=>void
@@ -15,6 +17,7 @@ const UserContext = createContext<UserContextType>({
     isLoggedIn:false,
     token:"",
     user:null,
+    loading:true,
     register:async()=>{},
     login:async()=>{},
     logout:async()=>{},
@@ -25,12 +28,15 @@ const URL = "http://localhost:8000/api/auth"
 export const UserContextProvider = ({children}:{children:React.ReactNode}) =>{
 
     const [user,setUser] = useState<User|null>(null);
-    const [isLoggedIn,setIsLoggedIn] = useState(false)
+    const [isLoggedIn,setIsLoggedIn] = useState(false);
+    const [loading,setLoading] = useState(true);
+
     const [token,setToken] = useState<string|null>(localStorage.getItem("token"))
 
 useEffect(() => {
   const fetchUser = async () => {
     try {
+      setLoading(true)
       const resposne = await fetch(`${URL}/me`, {
           method:"GET",
           credentials: "include",
@@ -43,17 +49,19 @@ useEffect(() => {
       console.log(data)
 
       if (!data.success){
-        alert(data.message)
-
+        toast.error(data.message)
       }
       console.log(data)
       setIsLoggedIn(true)
       setUser(data.data);
-      console.log("token: ",token)
+      toast.success(data.message)
     } catch(error:any) {
-    alert(error.message)
+    toast.error(error.message)
       setUser(null);
       setToken("")
+    }
+    finally{
+        setLoading(false)
     }
   };
 
@@ -78,9 +86,9 @@ useEffect(() => {
             if (!data.success){
                 throw new Error(data.message)
             }
-            alert(data.message)
+            toast.success(data.message)
         } catch (error:any) {
-            alert(error.message)
+            toast.error(error.message)
         }
     }
     const login = async(user:UserLogin) => {
@@ -103,9 +111,9 @@ useEffect(() => {
             setIsLoggedIn(true)
             setToken(data.data.token)
             setUser(data.data.user)
-            alert(data.message)
+            toast.success(data.message)
         } catch (error:any) {
-            alert(error.message)
+            toast.error(error.message)
         }
     }
     const logout = async() => {
@@ -120,18 +128,20 @@ useEffect(() => {
             )
             const data = await response.json()
             if (!data.success){
-                alert(data.message)
+                toast.success(data.message)
             }
             localStorage.removeItem("token")
             setToken("")
             setIsLoggedIn(false)
             setUser(null);
+            toast.success(data.message)
         } catch (error:any) {
-            alert(error.message)
+            toast.error(error.message)
         }
     }
 
-    return <UserContext.Provider value={{register,login,logout,isLoggedIn,user,token}}>
+
+    return <UserContext.Provider value={{register,login,logout,isLoggedIn,user,token,loading}}>
         {children}
     </UserContext.Provider>
 }

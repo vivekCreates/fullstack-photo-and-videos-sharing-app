@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react"
 import type { PostType } from "../types/post"
 import { useAuth } from "./UserContext"
+import toast from "react-hot-toast"
 
 
 
@@ -48,15 +49,14 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
                 throw new Error(data.message || "Something went wrong")
             }
             setPosts(data.data)
-            console.log("data: ",data.data)
+            toast.success(data.message)
+        
         } catch (error:any) {
-            console.log(error.message)
+            toast.error(error.message)
         }
     }
 
     const createPost = async (postData: FormData) => {
-        console.log("run")
-        console.log("User: ",user)
         if (!user || !token) return;
 
         const tempId = Date.now();
@@ -104,9 +104,10 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
                 )
             );
 
-            alert(data.message)
+            toast.success(data.message)
         } catch (error: any) {
             setPosts((prev) => prev.filter((p) => p.id !== tempId));
+            toast.error(error.message)
             console.error("Create Post Error:", error.message);
         }
     };
@@ -145,9 +146,10 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
                 throw new Error(data?.message || "Something went wrong")
             }
 
-            alert(data.message)
+            toast.success(data.message)
         } catch (error: any) {
             setPosts(previousPosts);
+            toast.error(error.message)
             console.log(error?.message)
         }
     };
@@ -179,8 +181,10 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
             if (!data.success){
                 throw new Error(data.message || "Something went wrong")
             }
+            toast.success(data?.message)
         } catch (error:any) {
             setPosts(previousPosts)
+            toast.error(error.message)
             console.log(error.message)
         }
     }

@@ -37,7 +37,7 @@ function Register() {
 
 
 return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-zinc-900 to-black px-4">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-black via-zinc-900 to-black px-4">
         <div className="w-full max-w-md rounded-2xl bg-zinc-900 border border-zinc-800 shadow-2xl">
 
             <div className="px-8 py-6">

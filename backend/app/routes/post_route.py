@@ -92,11 +92,12 @@ def get_posts(user=Depends(get_current_user),db:Session=Depends(get_db)):
                 "title": post.title,
                 "description": post.description,
                 "file": post.file,
-                "created_at": post.created_at,
+                "createdAt": post.created_at,
+                "updatedAt":post.updated_at,
                 "user": {
                     "id": user.id,
-                    "username": user.name,
-                    "avatar": user.profile_image,
+                    "name": user.name,
+                    "profileImage": user.profile_image,
                 }
             })
 
