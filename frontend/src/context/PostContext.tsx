@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react"
+import { createContext, useContext, useEffect, useState } from "react"
 import type { PostType } from "../types/post"
 import { useAuth } from "./UserContext"
 
@@ -28,6 +28,35 @@ const URL = "http://localhost:8000/api/posts"
 export const PostContextProvider = ({ children }: { children: React.ReactNode }) => {
     const { token, user } = useAuth();
     const [posts, setPosts] = useState<PostType[] | []>([])
+
+    useEffect(()=>{
+        getPosts()
+    },[])
+
+    const getPosts = async()=>{
+        try {
+            const response = await fetch(`${URL}`,{
+                method:"GET",
+                headers:{
+                    "Content-Type":"application/json",
+                    Authorization:`Bearer ${token}`
+                }
+            })
+
+            if (!response.ok){
+                throw new Error("Failed to fetch posts")
+
+            }
+
+            const data = await response.json();
+            if (!data.success){
+                throw new Error(data.message || "Something went wrong")
+            }
+            setPosts(data.data)
+        } catch (error:any) {
+            console.log(error.message)
+        }
+    }
 
     const createPost = async (postData: FormData) => {
         console.log("run")
