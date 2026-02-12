@@ -5,3 +5,12 @@ export function randomColor() {
 
   return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 }
+
+export const convertDate = (date:Date) => {
+const formattedDate = new Date(date).toLocaleDateString("en-GB", {
+  day: "2-digit",
+  month: "short",
+  year: "numeric",
+});
+return formattedDate
+}

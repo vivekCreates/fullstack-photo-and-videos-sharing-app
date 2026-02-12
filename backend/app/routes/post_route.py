@@ -51,30 +51,55 @@ async def create_post(title: str = Form(...),
             statusCode=500
         ).model_dump()
     
-    
+
 @router.get("/{id}")
-def get_one_post(id:int,user=Depends(get_current_user),db:Session=Depends(get_db)):
+def get_one_post(
+    id: int,
+    user=Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     try:
-        post = db.query(Post).filter(Post.id==id).first()
+        post = (
+            db.query(Post, User)
+            .filter(Post.id == id)
+            .join(User, Post.user_id== User.id)
+            .all()
+        )
+
         if not post:
             return ApiResponse(
-            message="Post not found",
-            statusCode=404
-        ) .model_dump()
+                message="Post not found",
+                statusCode=404
+            ).model_dump()
+            
+        result = []
+        for p, u in post:
+            result.append({
+                "id": p.id,
+                "title": p.title,
+                "description": p.description,
+                "file": p.file,
+                "createdAt": p.created_at,
+                "updatedAt":p.updated_at,
+                "user": {
+                    "id": u.id,
+                    "name": u.name,
+                    "profileImage": u.profile_image,
+                }
+            })
+            
+
         return ApiResponse(
             message="Post fetch successfully",
-            data= post_to_dict(post),
-            statusCode=200
+            statusCode=200,
+            data=result[0]
         ).model_dump()
-    except HTTPException as e:
-        db.rollback()
-        print(e)
+
+    except Exception as e:
         return ApiResponse(
             message=str(e),
             statusCode=500
-        ).model_dump()
-        
-        
+        ).model_dump()  
 @router.get("/")
 def get_posts(user=Depends(get_current_user),db:Session=Depends(get_db)):
     try:

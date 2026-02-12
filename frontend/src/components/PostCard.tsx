@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { MoreVertical } from "lucide-react";
 import { useAuth } from "../context/UserContext";
 import { usePost } from "../context/PostContext";
+import { useNavigate } from "react-router";
 
 type PostCardProps = {
   id: number;
@@ -37,10 +38,11 @@ export const PostCard = ({
   }, []);
   const {user} = useAuth()
   const {deletePost} = usePost()
- 
+  const navigate = useNavigate();
+
 
   return (
-    <div className="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition duration-200 relative">
+    <div onClick={()=>navigate(`/post/${id}`)} className="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition duration-200 relative">
       <div className="flex items-center justify-between px-3 py-2">
         <div className="flex items-center gap-2 ">
           {
