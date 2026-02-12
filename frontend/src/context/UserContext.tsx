@@ -125,6 +125,7 @@ useEffect(() => {
             localStorage.removeItem("token")
             setToken("")
             setIsLoggedIn(false)
+            setUser(null);
         } catch (error:any) {
             alert(error.message)
         }

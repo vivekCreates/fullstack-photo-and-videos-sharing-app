@@ -1,6 +1,8 @@
 import { Link } from 'react-router'
+import { useAuth } from '../context/UserContext'
 
 function Navbar() {
+    const {logout} = useAuth()
   return (
 <nav className="w-[70%] py-3 border-b border-gray-200 flex justify-between items-center">
   
@@ -24,7 +26,9 @@ function Navbar() {
       Profile
     </Link>
 
-    <button className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
+    <button className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+    onClick={logout}
+    >
       Logout
     </button>
   </div>
