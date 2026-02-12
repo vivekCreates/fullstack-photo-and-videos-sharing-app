@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { User, UserLogin, UserRegister } from "../types/user";
-import { useNavigate } from "react-router";
+
 
 type UserContextType = {
     isLoggedIn:boolean,
