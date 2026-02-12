@@ -5,6 +5,8 @@ import Register from './pages/Register'
 import ProtectedRoute from './pages/Protected'
 import PublicRoute from './pages/Public'
 import CreatePostPage from './pages/CreatePost'
+import { PostDetails } from './pages/PostDetails'
+
 
 
 function App() {
@@ -14,6 +16,7 @@ function App() {
         <Route element={<ProtectedRoute/>}>
         <Route path='/' element={<Home />} />
         <Route path='/create' element={<CreatePostPage />} />
+        <Route path='/post/:id' element={<PostDetails />} />
         </Route>
 
         <Route element={<PublicRoute/>}>
