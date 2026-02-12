@@ -123,7 +123,38 @@ export const PostContextProvider = async ({ children }: { children: React.ReactN
         }
     };
 
-    const deletePost = async (id: number) => { }
+    const deletePost = async (id: number) => {
+        const previousPosts = posts;
+
+        setPosts(prev=>(
+            prev.filter(p=>(
+                p.id != id
+            ))
+        ))
+
+        try {
+            const response = await fetch(`${URL}/${id}`,{
+                method:"DELETE",
+                headers:{
+                Authorization:`Bearer ${token}`
+                },
+                credentials:"include"
+            })
+
+            if (!response.ok){
+                throw new Error("Failed to delete post")
+            }
+
+            const data = await response.json();
+
+            if (!data.success){
+                throw new Error(data.message || "Something went wrong")
+            }
+        } catch (error:any) {
+            setPosts(previousPosts)
+            console.log(error.message)
+        }
+    }
 
     return <PostContext.Provider value={{ posts, createPost, updatePost, deletePost }}>
         {children}
