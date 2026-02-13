@@ -20,5 +20,6 @@ class PostResponse(BaseModel):
     file: Optional[str] = None
     user_id: int
     
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+}

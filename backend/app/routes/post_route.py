@@ -13,6 +13,27 @@ from app.utils.convert_in_dict import post_to_dict
 
 router = APIRouter(prefix="/posts")
 
+
+@router.get("/current-user")
+def get_posts_by_userId(
+      user=Depends(get_current_user),
+      db: Session = Depends(get_db)
+): 
+    print("user: ",user)
+    current_user_posts = db.query(Post).filter(Post.user_id == user.id).all()
+
+    if not current_user_posts:
+        return ApiResponse(
+            statusCode=404,
+            message="posts not found"
+        ).model_dump()
+    return ApiResponse(
+        message= "posts fetched successfully",
+        data= current_user_posts,
+        statusCode=200
+    ).model_dump()
+
+
 @router.post("/create")
 async def create_post(title: str = Form(...),
     description: str = Form(...),
@@ -223,3 +244,5 @@ async def delete_post(id:int,user=Depends(get_current_user),db:Session=Depends(g
             message=str(e),
             statusCode=200,
         ).model_dump()
+    
+

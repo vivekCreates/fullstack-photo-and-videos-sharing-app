@@ -4,6 +4,9 @@ from app.db.session import get_db
 from app.models.user_model import User
 from app.utils.create_token import decode_token
 from jose import ExpiredSignatureError,JWTError
+from app.utils.convert_in_dict import user_to_dict
+
+
 def get_current_user(
     request: Request,
     db: Session = Depends(get_db)
@@ -44,5 +47,6 @@ def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User not found"
         )
-
+    
+    
     return user

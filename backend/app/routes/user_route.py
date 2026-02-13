@@ -68,7 +68,7 @@ def login(user: UserLogin, response: Response, db: Session = Depends(get_db)):
                 statusCode=400,
                 message="Invalid credentials"
             ).model_dump()
-        token = create_token({"email": db_user.email})
+        token = create_token({"email": db_user.email,"id":db_user.id})
 
         
         response.set_cookie(
@@ -167,3 +167,4 @@ def get_logged_in_user(
         data= current_user,
         statusCode=200
     ).model_dump()
+
