@@ -7,6 +7,7 @@ import PublicRoute from './pages/Public'
 import CreatePostPage from './pages/CreatePost'
 import { PostDetails } from './pages/PostDetails'
 import ProfilePage from './pages/profile'
+import UpdatePostPage from './pages/UpdatePost'
 
 
 
@@ -19,6 +20,7 @@ function App() {
         <Route path='/create' element={<CreatePostPage />} />
         <Route path='/post/:id' element={<PostDetails />} />
         <Route path='/profile' element={<ProfilePage />} />
+        <Route path='/edit/:id' element={<UpdatePostPage />} />
         </Route>
 
         <Route element={<PublicRoute/>}>

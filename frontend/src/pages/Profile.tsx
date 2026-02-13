@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/UserContext";
 import toast from "react-hot-toast";
+
 type PostType = {
     id:number;
     title:string;

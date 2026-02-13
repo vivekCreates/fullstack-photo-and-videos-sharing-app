@@ -76,7 +76,7 @@ export const PostCard = ({
 
           {open && (
             <div className="absolute right-0 mt-1 w-28 bg-zinc-800 border border-zinc-700 rounded-md shadow-lg">
-              <button className="w-full text-left px-3 py-1.5 text-xs text-zinc-200 hover:bg-zinc-700 rounded-t-md">
+              <button onClick={()=>navigate(`/edit/${id}`)} className="w-full text-left px-3 py-1.5 text-xs text-zinc-200 hover:bg-zinc-700 rounded-t-md">
                 Edit
               </button>
               <button onClick={()=>deletePost(id)} className="w-full text-left px-3 py-1.5 text-xs text-red-400 hover:bg-zinc-700 rounded-b-md">
