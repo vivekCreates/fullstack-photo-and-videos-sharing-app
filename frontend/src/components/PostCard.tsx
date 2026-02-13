@@ -42,11 +42,12 @@ export const PostCard = ({
 
 
   return (
-    <div onClick={()=>navigate(`/post/${id}`)} className="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition duration-200 relative">
+    <div  className="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition duration-200 relative">
       <div className="flex items-center justify-between px-3 py-2">
         <div className="flex items-center gap-2 ">
           {
             profileImage ? (<img
+           
             src={profileImage}
             alt={name}
             className="w-8 h-8 rounded-full object-cover"
@@ -91,6 +92,7 @@ export const PostCard = ({
 
       <img
         src={postImage}
+         onClick={()=>navigate(`/post/${id}`)}
         alt="post"
         className="w-full max-h-60 object-cover"
       />

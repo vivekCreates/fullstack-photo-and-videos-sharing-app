@@ -6,6 +6,7 @@ import ProtectedRoute from './pages/Protected'
 import PublicRoute from './pages/Public'
 import CreatePostPage from './pages/CreatePost'
 import { PostDetails } from './pages/PostDetails'
+import ProfilePage from './pages/profile'
 
 
 
@@ -17,6 +18,7 @@ function App() {
         <Route path='/' element={<Home />} />
         <Route path='/create' element={<CreatePostPage />} />
         <Route path='/post/:id' element={<PostDetails />} />
+        <Route path='/profile' element={<ProfilePage />} />
         </Route>
 
         <Route element={<PublicRoute/>}>
