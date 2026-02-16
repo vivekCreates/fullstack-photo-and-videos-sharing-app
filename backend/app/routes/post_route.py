@@ -1,16 +1,17 @@
 from fastapi import APIRouter,Depends,File,Form,UploadFile,HTTPException
 from app.schemas.post_schema import PostCreate
 from app.db.session import get_db
-from sqlalchemy.orm import Session,joinedload
+from sqlalchemy.orm import Session
 from app.models.post_model import Post
 from app.models.user_model import User
+from app.models.like_model import Like
 from app.deps.auth_dep import get_current_user
 from app.utils.imagekit import upload_file_on_imagekit
 from app.schemas.post_schema import PostUpdate
 from app.schemas.response_schema import ApiResponse
 from app.utils.convert_in_dict import post_to_dict
 from typing import Optional
-
+from sqlalchemy.sql import exists
 router = APIRouter(prefix="/posts")
 
 
@@ -121,46 +122,63 @@ def get_one_post(
             message=str(e),
             statusCode=500
         ).model_dump()  
+        
+        
+
 @router.get("/")
-def get_posts(user=Depends(get_current_user),db:Session=Depends(get_db)):
+def get_posts(user=Depends(get_current_user), db: Session = Depends(get_db)):
     try:
+
+        is_liked = (
+            db.query(Like.id)
+            .filter(
+                Like.post_id == Post.id,
+                Like.user_id == user.id
+            )
+            .correlate(Post)
+            .exists()
+        )
+
         posts = (
-            db.query(Post, User)
+            db.query(
+                Post,
+                User,
+                is_liked.label("isLiked")
+            )
             .join(User, Post.user_id == User.id)
             .all()
         )
 
         result = []
 
-        for post, user in posts:
+        for post, post_user, is_liked in posts:
             result.append({
                 "id": post.id,
                 "title": post.title,
                 "description": post.description,
                 "file": post.file,
                 "createdAt": post.created_at,
-                "updatedAt":post.updated_at,
+                "updatedAt": post.updated_at,
+                "isLiked": is_liked,
                 "user": {
-                    "id": user.id,
-                    "name": user.name,
-                    "profileImage": user.profile_image,
+                    "id": post_user.id,
+                    "name": post_user.name,
+                    "profileImage": post_user.profile_image,
                 }
             })
 
         return ApiResponse(
-            message="Post created successfully",
-            data= result,
+            message="Posts fetched successfully",
+            data=result,
             statusCode=200
         ).model_dump()
 
-    except HTTPException as e:
+    except Exception as e:
         db.rollback()
-        print(str(e))
         return ApiResponse(
             message=str(e),
             statusCode=500
-        ).model_dump()
-        
+        ).model_dump()      
 @router.patch("/{id}")
 async def update_post(
     id:int,
