@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.routes import user_route
 from app.routes import post_route
+from app.routes import like_route
 from app.db.init_db import create_tables
 from fastapi.responses import JSONResponse
 
@@ -45,6 +46,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 app.include_router(user_route.router, prefix=settings.API_PREFIX)
 app.include_router(post_route.router, prefix=settings.API_PREFIX)
+app.include_router(like_route.router, prefix=settings.API_PREFIX)
 
 
 @app.get("/")

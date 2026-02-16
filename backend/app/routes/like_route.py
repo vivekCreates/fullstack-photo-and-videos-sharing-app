@@ -1,4 +1,4 @@
-from fastapi import APIRouter,Depends,HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.models.like_model import Like
@@ -9,18 +9,23 @@ from app.schemas.response_schema import ApiResponse
 router = APIRouter(prefix="/likes")
 
 
-@router.post("/like-or-dislike/{post_id}")
-def like_or_dislike(post_id: int,user=Depends(get_current_user),  db: Session = Depends(get_db)):
+@router.post("/{post_id}")
+def like_or_dislike(
+    post_id: int, user=Depends(get_current_user), db: Session = Depends(get_db)
+):
     try:
-        liked_post = db.query(Like).filter(Like.post_id == post_id).filter(Like.user_id == user.id).first()
-        
+        liked_post = (
+            db.query(Like)
+            .filter(Like.post_id == post_id)
+            .filter(Like.user_id == user.id)
+            .first()
+        )
+
         if liked_post:
             db.delete(liked_post)
             db.commit()
             return ApiResponse(
-                statusCode=200,
-                message="Post Disliked successful",
-                data=liked_post
+                statusCode=200, message="Post Disliked successful"
             ).model_dump()
         else:
             new_like = Like(post_id=post_id, user_id=user.id)
@@ -29,12 +34,15 @@ def like_or_dislike(post_id: int,user=Depends(get_current_user),  db: Session = 
             return ApiResponse(
                 statusCode=200,
                 message="Post Liked successful",
-                data=liked_post
+                data={
+                    "id": new_like.id,
+                    "post_id": new_like.post_id,
+                    "user_id": new_like.user_id,
+                    "created_at":new_like.created_at,
+                    "updated_at":new_like.updated_at
+                },
             ).model_dump()
     except Exception as e:
         db.rollback()
         print(str(e))
-        return ApiResponse(
-            statusCode=500,
-            message=str(e)
-        )
+        return ApiResponse(statusCode=500, message=str(e))
