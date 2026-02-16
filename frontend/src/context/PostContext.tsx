@@ -11,6 +11,7 @@ type PostContextType = {
     updatePost: (id: number, postData: FormData) => {}
     deletePost: (id: number) => {}
     getPostById: (id: number) => {}
+    likeOrDislike:(postId:number)=>{}
 }
 
 const PostContext = createContext<PostContextType>({
@@ -18,7 +19,8 @@ const PostContext = createContext<PostContextType>({
     createPost: async () => { },
     updatePost: async () => { },
     deletePost: async () => { },
-    getPostById: async () => { }
+    getPostById: async () => { },
+    likeOrDislike: async()=>{}
 })
 
 const URL = "http://localhost:8000/api/posts"
@@ -218,7 +220,32 @@ console.log(response)
         }
     }
 
-    return <PostContext.Provider value={{ posts, createPost, updatePost, deletePost, getPostById }}>
+    const likeOrDislike = async(postId:number)=>{
+         try {
+            const response = await fetch(`http://localhost:8000/api/likes/${postId}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                }
+            })
+
+            if (!response.ok) {
+                throw new Error("Failed to Like posts")
+
+            }
+
+            const data = await response.json();
+            if (!data.success) {
+                throw new Error(data.message || "Something went wrong")
+            }
+            toast.success(data.message)
+        } catch (error: any) {
+            toast.error(error.message)
+        }
+    }
+
+    return <PostContext.Provider value={{ posts, createPost, updatePost, deletePost, getPostById,likeOrDislike }}>
         {children}
     </PostContext.Provider>
 }
