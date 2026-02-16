@@ -13,6 +13,7 @@ router = APIRouter(prefix="/likes")
 def like_or_dislike(post_id: int,user=Depends(get_current_user),  db: Session = Depends(get_db)):
     try:
         liked_post = db.query(Like).filter(Like.post_id == post_id).filter(Like.user_id == user.id).first()
+        
         if liked_post:
             db.delete(liked_post)
             db.commit()
@@ -37,4 +38,3 @@ def like_or_dislike(post_id: int,user=Depends(get_current_user),  db: Session = 
             statusCode=500,
             message=str(e)
         )
-        
