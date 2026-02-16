@@ -13,6 +13,8 @@ function PostSection() {
         <PostCard 
         key={post.id}
         name={post.user.name}
+        isLiked={post.isLiked}
+        likeCount={post.likeCount}
         id ={post.id} 
         title={post.title} 
         description={post.description}

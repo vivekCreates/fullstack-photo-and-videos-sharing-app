@@ -5,6 +5,8 @@ export type PostType = {
     file:string,
     createdAt:Date,
     updateAt:Date,
+    isLiked:boolean,
+    likeCount:number,
     user:{
         id:number,
         name:string,

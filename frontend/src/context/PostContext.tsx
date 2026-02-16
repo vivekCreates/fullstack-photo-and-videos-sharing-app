@@ -71,6 +71,8 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
             title: postData.get("title") as string,
             description: postData.get("description") as string,
             file: postData.get("file") as string,
+            isLiked:false,
+            likeCount:0,
             createdAt: now,
             updateAt: now,
             user: {
@@ -221,6 +223,11 @@ console.log(response)
     }
 
     const likeOrDislike = async(postId:number)=>{
+        setPosts(prev=>(
+            prev.map(p => (
+                p.id ==postId ? {...p,isLiked:!p.isLiked,likeCount:p.isLiked?p.likeCount-1:p.likeCount+1}:p
+            ))
+        ))
          try {
             const response = await fetch(`http://localhost:8000/api/likes/${postId}`, {
                 method: "POST",
@@ -241,6 +248,11 @@ console.log(response)
             }
             toast.success(data.message)
         } catch (error: any) {
+            setPosts(prev=>(
+            prev.map(p => (
+                p.id ==postId ? {...p,isLiked:!p.isLiked,likeCount:p.isLiked?p.likeCount-1:p.likeCount+1}:p
+            ))
+        ))
             toast.error(error.message)
         }
     }

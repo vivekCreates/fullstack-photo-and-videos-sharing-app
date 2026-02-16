@@ -10,7 +10,9 @@ type PostCardProps = {
   title: string;
   description: string;
   postImage: string;
+  isLiked:boolean;
   profileImage:string;
+  likeCount:number;
   userId:number
 };
 
@@ -20,6 +22,8 @@ export const PostCard = ({
   title,
   description,
   postImage,
+  isLiked,
+  likeCount,
   profileImage,
   userId
 }: PostCardProps) => {
@@ -39,8 +43,6 @@ export const PostCard = ({
   const {user} = useAuth()
   const {deletePost,likeOrDislike} = usePost()
   const navigate = useNavigate();
-
-  const [like,setLike] = useState(false)
 
   return (
     <div  className="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition duration-200 relative">
@@ -103,21 +105,10 @@ export const PostCard = ({
           {title}
         </h2>
 
-          {
-            like ? (
-            <Heart fill="red" onClick={()=>{
-              setLike(false)
-              likeOrDislike(id)
-            }
-          }/>)
-            :
-            (<Heart onClick={()=>{
-              setLike(true)
-              likeOrDislike(id)
-}
-}/>)
-          }
-          
+<div className="flex gap-2 items-center">
+<Heart fill={isLiked ? "red" : "none"} size={20} onClick={() => likeOrDislike(id)}/>
+  <p>{likeCount}</p>  
+</div>
 
         <p className="text-xs text-zinc-400 leading-snug">
           {description.slice(0,100)}
