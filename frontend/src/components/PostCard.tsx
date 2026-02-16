@@ -37,7 +37,7 @@ export const PostCard = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
   const {user} = useAuth()
-  const {deletePost} = usePost()
+  const {deletePost,likeOrDislike} = usePost()
   const navigate = useNavigate();
 
   const [like,setLike] = useState(false)
@@ -104,9 +104,18 @@ export const PostCard = ({
         </h2>
 
           {
-            like ? (<Heart fill="red" onClick={()=>setLike(false)}/>)
+            like ? (
+            <Heart fill="red" onClick={()=>{
+              setLike(false)
+              likeOrDislike(id)
+            }
+          }/>)
             :
-            (<Heart onClick={()=>setLike(true)}/>)
+            (<Heart onClick={()=>{
+              setLike(true)
+              likeOrDislike(id)
+}
+}/>)
           }
           
 
