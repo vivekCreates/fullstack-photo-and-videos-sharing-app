@@ -46,3 +46,18 @@ def like_or_dislike(
         db.rollback()
         print(str(e))
         return ApiResponse(statusCode=500, message=str(e))
+
+
+@router.get("/")
+def get_all_liked_posts(user=Depends(get_current_user), db: Session = Depends(get_db)):
+    try:
+        posts = db.query(Like).filter(Like.user_id == user.id).all()
+        return ApiResponse(
+            statusCode=200,
+            message="Posts fetched successfully",
+            data=posts,
+        ).model_dump()
+    except Exception as e:
+        db.rollback()
+        print(str(e))
+        return ApiResponse(statusCode=500, message=str(e))
