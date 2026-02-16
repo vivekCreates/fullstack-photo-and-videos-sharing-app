@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { MoreVertical } from "lucide-react";
+import { Heart, MoreVertical } from "lucide-react";
 import { useAuth } from "../context/UserContext";
 import { usePost } from "../context/PostContext";
 import { useNavigate } from "react-router";
@@ -40,6 +40,7 @@ export const PostCard = ({
   const {deletePost} = usePost()
   const navigate = useNavigate();
 
+  const [like,setLike] = useState(false)
 
   return (
     <div  className="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition duration-200 relative">
@@ -94,7 +95,7 @@ export const PostCard = ({
         src={postImage}
          onClick={()=>navigate(`/post/${id}`)}
         alt="post"
-        className="w-full max-h-60 object-cover"
+        className="w-full max-h-60 object-cover object-center"
       />
 
       <div className="px-3 py-3 space-y-1.5">
@@ -102,8 +103,15 @@ export const PostCard = ({
           {title}
         </h2>
 
+          {
+            like ? (<Heart fill="red" onClick={()=>setLike(false)}/>)
+            :
+            (<Heart onClick={()=>setLike(true)}/>)
+          }
+          
+
         <p className="text-xs text-zinc-400 leading-snug">
-          {description}
+          {description.slice(0,100)}
         </p>
       </div>
     </div>

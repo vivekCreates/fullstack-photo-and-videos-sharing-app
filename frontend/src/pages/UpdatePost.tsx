@@ -1,14 +1,24 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { usePost } from "../context/PostContext";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 
 export default function UpdatePostPage() {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [file, setFile] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
+    const {id} = useParams()
+    const {posts,updatePost} = usePost()
 
-    const { updatePost } = usePost()
+    useEffect(()=>{
+        const post = posts.filter(p=>p.id == Number(id))[0]
+        setTitle(post.title)
+        setDescription(post.description)
+        setPreview(post.file)
+    },[])
+
+
+
     const navigate = useNavigate()
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const selected = e.target.files?.[0];
@@ -26,7 +36,7 @@ export default function UpdatePostPage() {
         formData.append("description", description);
         if (file) formData.append("file", file);
 
-        updatePost(1,formData);
+        updatePost(Number(id),formData);
 
         setTitle("")
         setDescription("")

@@ -10,13 +10,15 @@ type PostContextType = {
     createPost: (postData: FormData) => {}
     updatePost: (id: number, postData: FormData) => {}
     deletePost: (id: number) => {}
+    getPostById: (id: number) => {}
 }
 
 const PostContext = createContext<PostContextType>({
     posts: [],
     createPost: async () => { },
     updatePost: async () => { },
-    deletePost: async () => { }
+    deletePost: async () => { },
+    getPostById: async () => { }
 })
 
 const URL = "http://localhost:8000/api/posts"
@@ -25,33 +27,33 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
     const { token, user } = useAuth();
     const [posts, setPosts] = useState<PostType[] | []>([])
 
-    useEffect(()=>{
+    useEffect(() => {
         getPosts()
-    },[])
+    }, [])
 
-    const getPosts = async()=>{
+    const getPosts = async () => {
         try {
-            const response = await fetch(`${URL}`,{
-                method:"GET",
-                headers:{
-                    "Content-Type":"application/json",
-                    Authorization:`Bearer ${token}`
+            const response = await fetch(`${URL}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
                 }
             })
 
-            if (!response.ok){
+            if (!response.ok) {
                 throw new Error("Failed to fetch posts")
 
             }
 
             const data = await response.json();
-            if (!data.success){
+            if (!data.success) {
                 throw new Error(data.message || "Something went wrong")
             }
             setPosts(data.data)
             toast.success(data.message)
-        
-        } catch (error:any) {
+
+        } catch (error: any) {
             toast.error(error.message)
         }
     }
@@ -69,10 +71,10 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
             file: postData.get("file") as string,
             createdAt: now,
             updateAt: now,
-            user:{
-                id:user.id,
-                name:user.name,
-                profileImage:String(user.profile_image)
+            user: {
+                id: user.id,
+                name: user.name,
+                profileImage: String(user.profile_image)
             }
         };
 
@@ -114,6 +116,7 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
 
     const updatePost = async (id: number, formData: FormData) => {
         const previousPosts = posts;
+        const file = formData.get("file") as File | null;
 
         setPosts((prev) =>
             prev.map((p) =>
@@ -121,7 +124,7 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
                     ? {
                         ...p,
                         title: String(formData.get("title")),
-                        file: String(formData.get("file")),
+                        file: file ? window.URL.createObjectURL(file) : p.file,
                         description: String(formData.get("description")),
                         update_at: new Date(),
                     }
@@ -130,14 +133,14 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
         );
 
         try {
-            const response = await fetch(`${URL}${id}`, {
+            const response = await fetch(`${URL}/${id}`, {
                 method: "PATCH",
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
                 body: formData,
             });
-
+console.log(response)
             if (!response.ok) throw new Error("Failed");
 
             const data = await response.json();
@@ -145,7 +148,7 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
             if (!data?.success) {
                 throw new Error(data?.message || "Something went wrong")
             }
-
+            console.log(data)
             toast.success(data.message)
         } catch (error: any) {
             setPosts(previousPosts);
@@ -157,39 +160,65 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
     const deletePost = async (id: number) => {
         const previousPosts = posts;
 
-        setPosts(prev=>(
-            prev.filter(p=>(
+        setPosts(prev => (
+            prev.filter(p => (
                 p.id != id
             ))
         ))
 
         try {
-            const response = await fetch(`${URL}/${id}`,{
-                method:"DELETE",
-                headers:{
-                Authorization:`Bearer ${token}`
+            const response = await fetch(`${URL}/${id}`, {
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${token}`
                 },
-                credentials:"include"
+                credentials: "include"
             })
 
-            if (!response.ok){
+            if (!response.ok) {
                 throw new Error("Failed to delete post")
             }
 
             const data = await response.json();
 
-            if (!data.success){
+            if (!data.success) {
                 throw new Error(data.message || "Something went wrong")
             }
             toast.success(data?.message)
-        } catch (error:any) {
+        } catch (error: any) {
             setPosts(previousPosts)
             toast.error(error.message)
             console.log(error.message)
         }
     }
 
-    return <PostContext.Provider value={{ posts, createPost, updatePost, deletePost }}>
+    const getPostById = async (id: number) => {
+        try {
+            const response = await fetch(`${URL}/${id}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                }
+            })
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch posts")
+
+            }
+
+            const data = await response.json();
+            if (!data.success) {
+                throw new Error(data.message || "Something went wrong")
+            }
+            toast.success(data.message)
+            return data.data
+        } catch (error: any) {
+            toast.error(error.message)
+        }
+    }
+
+    return <PostContext.Provider value={{ posts, createPost, updatePost, deletePost, getPostById }}>
         {children}
     </PostContext.Provider>
 }
