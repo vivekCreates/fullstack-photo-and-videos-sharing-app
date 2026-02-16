@@ -148,6 +148,10 @@ def get_posts(user=Depends(get_current_user), db: Session = Depends(get_db)):
             .join(User, Post.user_id == User.id)
             .all()
         )
+        
+        like_count = (
+            db.query(Like).filter(Like.post_id == Post.id).count()
+        )
 
         result = []
 
@@ -160,6 +164,7 @@ def get_posts(user=Depends(get_current_user), db: Session = Depends(get_db)):
                 "createdAt": post.created_at,
                 "updatedAt": post.updated_at,
                 "isLiked": is_liked,
+                "likeCount": like_count,
                 "user": {
                     "id": post_user.id,
                     "name": post_user.name,

@@ -65,25 +65,3 @@ def get_all_liked_posts(user=Depends(get_current_user), db: Session = Depends(ge
         return ApiResponse(statusCode=500, message=str(e))
 
 
-@router.get("/{post_id}")
-def get_post_like_count(
-    post_id: int, user=Depends(get_current_user), db: Session = Depends(get_db)
-):
-    try:
-        post = db.query(Post).filter(Post.id == post_id).first()
-
-        if not post:
-            return ApiResponse(statusCode=404, message="Post not found").model_dump()
-        likes_count = (
-            db.query(func.count(Like.id)).filter(Like.post_id == post_id).scalar()
-        )
-        return ApiResponse(
-            statusCode=200,
-            message="Likes fetched successfully",
-            data={"post_id": post_id, "likesCount": likes_count},
-        ).model_dump()
-
-    except HTTPException as e:
-        db.rollback()
-        print(str(e))
-        return ApiResponse(statusCode=500, message=str(e))
