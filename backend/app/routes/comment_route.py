@@ -96,3 +96,20 @@ def delete_post(comment_id:int,user=Depends(get_current_user),db:Session=Depends
             statusCode=500,
             message=str(e)
         )
+        
+@router.get("/posts/{post_id}")
+def getall_comments_by_post_id(post_id:int,user=Depends(get_current_user),db:Session=Depends(get_db)):
+    try:
+        comments = db.query(Comment).filter(Comment.post_id==post_id).all()
+        return ApiResponse(
+            statusCode=200,
+            message="Comment fetched successfully",
+            data=comments
+        ).model_dump()
+    except HTTPException as e:
+        db.rollback()
+        print(str(e))
+        return ApiResponse(
+            statusCode=500,
+            message=str(e)
+        )
