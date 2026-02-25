@@ -3,32 +3,36 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.models.user_model import User
 from app.utils.create_token import decode_token
-from jose import ExpiredSignatureError,JWTError
-from app.utils.convert_in_dict import user_to_dict
+from jose import ExpiredSignatureError, JWTError
 
 
 def get_current_user(
     request: Request,
     db: Session = Depends(get_db)
 ):
+    token = request.cookies.get("token")
+
+    if not token:
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header.split(" ")[1]
+
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token is required"
+        )
+
     try:
-        token = request.cookies.get("token")
-        
-        if not token:
-            auth_header = request.headers.get("Authorization")
-            if auth_header and auth_header.startswith("Bearer "):
-                token = auth_header.split(" ")[1]
+        payload = decode_token(token)
 
     except ExpiredSignatureError:
-        raise HTTPException(401, "Access token expired")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Access token expired"
+        )
 
     except JWTError:
-        raise HTTPException(401, "Invalid token")
-
-
-    payload = decode_token(token)
-    print("Decoded payload: ", payload)
-    if not payload:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token"
@@ -47,6 +51,5 @@ def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User not found"
         )
-    
-    
+
     return user
