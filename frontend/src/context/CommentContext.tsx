@@ -32,7 +32,7 @@ const URL = "http://localhost:8000/api/comments"
 const CommentContextProvider = ({ children }: { children: React.ReactNode }) => {
 
     const [comments, setComments] = useState<CommentType[]>([])
-    const { user } = useAuth();
+    const { user, token } = useAuth();
 
     const createComment = async ({ postId, text, parentCommentId }: CreateComment) => {
         if (!user) return;
@@ -51,7 +51,19 @@ const CommentContextProvider = ({ children }: { children: React.ReactNode }) => 
         };
         setComments(prev => [newComment, ...prev]);
         try {
-            const response = await fetch(`${URL}/posts/${postId}`)
+            const response = await fetch(`${URL}/posts/${postId}`,
+                {
+                    method: "POST",
+                    body: JSON.stringify({
+                        text: text,
+                        parent_comment_id: parentCommentId
+                    }),
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            )
             if (!response.ok) {
                 throw new Error("Failed to create comment")
             }
@@ -68,26 +80,33 @@ const CommentContextProvider = ({ children }: { children: React.ReactNode }) => 
             toast.error(error?.message)
         }
     };
-    
-    const deleteComment = async(commentId:number) => {
+
+    const deleteComment = async (commentId: number) => {
         const prevComments = comments;
-        setComments(prev=>prev.filter(c=>c.id != commentId))
+        setComments(prev => prev.filter(c => c.id != commentId))
         try {
-            const response = await fetch(`${URL}/${commentId}`)
-            if (!response.ok){
+            const response = await fetch(`${URL}/${commentId}`,{
+                method:"DELETE",
+                headers:{
+                    "Content-Type":"application/json",
+                    "Authorization":`Bearer ${token}`
+                }
+            })
+            if (!response.ok) {
                 throw new Error("Failed to delete comment")
             }
             const data = await response.json()
 
-            if(!data.success){
+            if (!data.success) {
                 throw new Error(data?.message || "Something went wrong")
             }
             toast.success(data.message)
-        } catch (error:any) {
+        } catch (error: any) {
             setComments(prevComments)
             toast.error(error?.message)
         }
-     }
+    };
+
 
     const updateComment = () => { }
     const fetchComment = () => { }
