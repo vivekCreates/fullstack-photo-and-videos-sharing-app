@@ -9,6 +9,7 @@ import { Loader } from "lucide-react";
 import { useComment } from "../context/CommentContext";
 import CommentItem from "../components/Comment";
 
+
 export const PostDetails = () => {
   const { id } = useParams();
   const { token } = useAuth();
@@ -17,8 +18,12 @@ export const PostDetails = () => {
   const [loading, setLoading] = useState(true);
   const [showComments, setShowComments] = useState(false);
   const [comment, setComment] = useState("")
+  const [isCommentEditable, setIsCommentEditable] = useState(false);
+  const [editableCommentId, seteditableCommentId] = useState<number | null>(null);
 
-  const { createComment, comments,fetchComment } = useComment()
+  const [parentCommentId,setParentCommentId] = useState<number|null>(null)
+
+  const { createComment, comments, fetchComment, updateComment } = useComment()
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -144,27 +149,57 @@ export const PostDetails = () => {
               <input
                 onChange={(e) => setComment(e.target.value)}
                 type="text"
+                value={comment}
                 placeholder="Write a comment..."
                 className="flex-1 bg-zinc-800 border border-zinc-700 p-3 rounded-lg focus:outline-none focus:border-zinc-500 transition"
               />
-              <button onClick={() => createComment({ postId: post.id, parentCommentId: null, text: comment })} className="bg-zinc-800 px-4 py-2 rounded-lg hover:bg-zinc-700 transition">
-                Post
-              </button>
+              {
+                isCommentEditable ? (
+                  <button onClick={() => {
+                    updateComment({ commentId: editableCommentId!, text: comment })
+                    setComment("")
+                    setIsCommentEditable(!isCommentEditable)
+                    setParentCommentId(null)
+                  }
+                  } className="bg-zinc-800 px-4 py-2 rounded-lg hover:bg-zinc-700 transition">
+                    Update
+                  </button>
+                ) :
+                  (
+                    <button onClick={() => {
+                      createComment({ postId: post.id, parentCommentId, text: comment })
+                      setComment("")
+                    }
+                      } 
+                      className="bg-[#8B5CF6] px-4 py-2 rounded-lg hover:bg-zinc-700 transition">
+                      Post
+                    </button>
+                  )
+
+              }
+
+
             </div>
 
             {/* Comments List */}
             <div className="space-y-5 min-h-[80px]">
               {
                 comments ? comments.map(c => (
-                  <CommentItem 
-                  key={c.id}
-                  id={c.id}
-                  user={c.user}
-                  parentCommentId={c.parentCommentId}
-                  text={c.text}
-                  createdAt={c.createdAt}
-                  updatedAt={c.updatedAt}
-                  postId={c.postId}
+                  <CommentItem
+                    key={c.id}
+                    id={c.id}
+                    user={c.user}
+                    parentCommentId={c.parentCommentId}
+                    setParentCommentId={setParentCommentId}
+                    text={c.text}
+                    createdAt={c.createdAt}
+                    updatedAt={c.updatedAt}
+                    postId={c.postId}
+                    commentInput={comment}
+                    setCommentInput={setComment}
+                    setIsCommentEditable={setIsCommentEditable}
+                    setEditableCommentId={seteditableCommentId}
+                    isCommentEditable={isCommentEditable}
                   />
                 )) :
                   (

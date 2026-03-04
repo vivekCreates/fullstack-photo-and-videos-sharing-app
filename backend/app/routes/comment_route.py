@@ -123,6 +123,7 @@ def getall_comments_by_post_id(post_id:int,user=Depends(get_current_user),db:Ses
                     "profileImage": u.profile_image,
                 }
             })
+            print(result)
             
         return ApiResponse(
             statusCode=200,

@@ -51,10 +51,13 @@ export const CommentContextProvider = ({ children }: { children: React.ReactNode
             user:{
                 id:user.id,
                 name:user.name,
-                profileImage:String(user.profile_image)
-            }
+                profileImage:String(user?.profile_image)
+            },
+            
         };
+        
         setComments(prev => [newComment, ...prev]);
+        console.log("comments: ",comments)
         try {
             const response = await fetch(`${URL}/posts/${postId}`,
                 {
@@ -66,7 +69,8 @@ export const CommentContextProvider = ({ children }: { children: React.ReactNode
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`
-                    }
+                    },
+                    credentials:"include"
                 }
             )
             if (!response.ok) {
@@ -78,7 +82,7 @@ export const CommentContextProvider = ({ children }: { children: React.ReactNode
             if (!data.success) {
                 throw new Error(data?.message || "Something went wrong")
             }
-
+          
             setComments(prev => prev.map(c => c.id == tempId ? data.data : c))
             toast.success(data.message)
         } catch (error: any) {
