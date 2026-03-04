@@ -3,7 +3,11 @@ export type CommentType = {
     text:string,
     postId:number,
     parentCommentId:null|number,
-    userId:number,
     createdAt:Date,
-    updatedAt:Date
+    updatedAt:Date,
+    user:{
+        id:number,
+        name:string,
+        profileImage:string
+    }
 } 

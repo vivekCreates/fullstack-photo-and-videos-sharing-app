@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useState } from "react";
 import { useAuth } from "./UserContext";
 import type { CommentType } from "../types/comment";
 import toast from "react-hot-toast";
@@ -35,10 +35,6 @@ const CommentContextProvider = ({ children }: { children: React.ReactNode }) => 
     const { user, token } = useAuth();
 
 
-    useEffect(()=>{
-        fetchComment()
-    },[])
-
     const createComment = async ({ postId, text, parentCommentId }: CreateComment) => {
         if (!user) return;
 
@@ -48,11 +44,15 @@ const CommentContextProvider = ({ children }: { children: React.ReactNode }) => 
         const newComment: CommentType = {
             id: tempId,
             text,
-            userId: user.id,
             postId,
             parentCommentId,
             createdAt: now,
-            updatedAt: now
+            updatedAt: now,
+            user:{
+                id:user.id,
+                name:user.name,
+                profileImage:String(user.profile_image)
+            }
         };
         setComments(prev => [newComment, ...prev]);
         try {
