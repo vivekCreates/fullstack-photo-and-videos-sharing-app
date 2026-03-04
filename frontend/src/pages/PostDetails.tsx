@@ -161,7 +161,7 @@ export const PostDetails = () => {
                     setIsCommentEditable(!isCommentEditable)
                     setParentCommentId(null)
                   }
-                  } className="bg-zinc-800 px-4 py-2 rounded-lg hover:bg-zinc-700 transition">
+                  } className="bg-[#8B5CF6] px-4 py-2 rounded-lg hover:bg-zinc-700 transition">
                     Update
                   </button>
                 ) :
