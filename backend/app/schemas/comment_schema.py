@@ -3,7 +3,7 @@ from typing import Optional
 
 class CreateComment(BaseModel):
     text:str
-    parent_comment_id:Optional[int] = None
+    parent_comment_id:Optional[int] = None 
     
 class UpdateComment(BaseModel):
     text:str
