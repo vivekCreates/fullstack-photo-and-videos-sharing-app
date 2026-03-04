@@ -108,7 +108,36 @@ const CommentContextProvider = ({ children }: { children: React.ReactNode }) => 
     };
 
 
-    const updateComment = () => { }
+    const updateComment = async({text,commentId}:{text:string,commentId:number}) => { 
+        const prevComment = comments.find(c=>c.id ==commentId);
+
+        setComments(prev=>prev.map(c=>c.id == commentId ? {...c,text}:c))
+        try {
+            const response = await fetch(`${URL}/${commentId}`,{
+                method:"PATCH",
+                headers:{
+                    "Content-Type":"application/json",
+                    "Authorization":`Bearer ${token}`
+                },
+                body:JSON.stringify({text})
+            })
+
+            if (!response.ok){
+                throw new Error("Failed to Update Comment")
+            }
+
+            const data  = await response.json();
+            if (!data.success){
+                throw new Error(data?.message||"Something went wrong")
+            }
+
+            toast.success(data?.message)
+
+        } catch (error:any) {
+            setComments(prev=>prev.map(c=>c.id == commentId ? prevComment!:c))
+            toast.error(error?.message)
+        }
+    }
     const fetchComment = () => { }
 
     return (
