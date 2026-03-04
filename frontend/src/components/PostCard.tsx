@@ -3,7 +3,6 @@ import { Heart, MessageCircle, MoreVertical } from "lucide-react";
 import { useAuth } from "../context/UserContext";
 import { usePost } from "../context/PostContext";
 import { useNavigate } from "react-router";
-import { useComment } from "../context/CommentContext";
 
 type PostCardProps = {
   id: number;
@@ -14,6 +13,7 @@ type PostCardProps = {
   isLiked: boolean;
   profileImage: string;
   likeCount: number;
+  commentCount:number
   userId: number
 };
 
@@ -22,6 +22,7 @@ export const PostCard = ({
   name,
   title,
   description,
+  commentCount,
   postImage,
   isLiked,
   likeCount,
@@ -44,7 +45,7 @@ export const PostCard = ({
   const { user } = useAuth()
   const { deletePost, likeOrDislike } = usePost()
   const navigate = useNavigate();
-  const { comments } = useComment();
+
 
   return (
     <div className="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition duration-200 relative">
@@ -108,13 +109,13 @@ export const PostCard = ({
         </h2>
 
         <div className="flex gap-2 items-center">
-          <div className="flex gap-2 items-center bg-zinc-700 py-1 px-2 rounded-3xl">
+          <div className="flex gap-2 items-center bg-zinc-700 py-1 px-3 rounded-3xl">
             <Heart fill={isLiked ? "red" : "none"} size={20} onClick={() => likeOrDislike(id)} />
             <p>{likeCount}</p>
           </div>
           <div className="flex gap-2 items-center bg-zinc-700 py-1 px-2 rounded-3xl">
-            <MessageCircle size={20} />
-            <p>{comments.length}</p>
+            <MessageCircle size={18} />
+            <p>{commentCount}</p>
           </div>
         </div>
 

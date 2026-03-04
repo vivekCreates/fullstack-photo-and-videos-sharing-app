@@ -15,6 +15,7 @@ function PostSection() {
         name={post.user.name}
         isLiked={post.isLiked}
         likeCount={post.likeCount}
+        commentCount={post.commentCount}
         id ={post.id} 
         title={post.title} 
         description={post.description}

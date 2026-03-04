@@ -72,6 +72,7 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
             description: postData.get("description") as string,
             file: postData.get("file") as string,
             isLiked:false,
+            commentCount:0,
             likeCount:0,
             createdAt: now,
             updateAt: now,
