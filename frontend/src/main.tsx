@@ -3,16 +3,19 @@ import './index.css'
 import App from './App.tsx'
 import { UserContextProvider } from './context/UserContext.tsx'
 import { PostContextProvider } from './context/PostContext.tsx'
-import {Toaster} from "react-hot-toast"
+import { Toaster } from "react-hot-toast"
+import { CommentContextProvider } from './context/CommentContext.tsx'
 
 createRoot(document.getElementById('root')!).render(
     <>
-    <Toaster/>
-    <UserContextProvider>
-    <PostContextProvider>
-        <App />
-    </PostContextProvider>
-    </UserContextProvider>
+        <Toaster />
+        <UserContextProvider>
+            <PostContextProvider>
+                <CommentContextProvider>
+                    <App />
+                </CommentContextProvider>
+            </PostContextProvider>
+        </UserContextProvider>
     </>
-    
+
 )

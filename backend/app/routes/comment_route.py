@@ -127,7 +127,7 @@ def getall_comments_by_post_id(post_id:int,user=Depends(get_current_user),db:Ses
         return ApiResponse(
             statusCode=200,
             message="Comment fetched successfully",
-            data=result[0]
+            data=result
         ).model_dump()
     except HTTPException as e:
         db.rollback()

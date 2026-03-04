@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { useAuth } from "./UserContext";
 import type { CommentType } from "../types/comment";
 import toast from "react-hot-toast";
@@ -29,7 +29,7 @@ const CommentContext = createContext<CommentContextType>({
 
 const URL = "http://localhost:8000/api/comments"
 
-const CommentContextProvider = ({ children }: { children: React.ReactNode }) => {
+export const CommentContextProvider = ({ children }: { children: React.ReactNode }) => {
 
     const [comments, setComments] = useState<CommentType[]>([])
     const { user, token } = useAuth();
@@ -145,7 +145,7 @@ const CommentContextProvider = ({ children }: { children: React.ReactNode }) => 
     }
     const fetchComment = async(postId:number) => {
         try {
-            const response = await fetch(`${URL}/${postId}`,{
+            const response = await fetch(`${URL}/posts/${postId}`,{
                 method:"GET",
                 headers:{
                    "Content-Type":"application/json",
@@ -162,6 +162,7 @@ const CommentContextProvider = ({ children }: { children: React.ReactNode }) => 
             }
             toast.success(data?.message)
             setComments(data.data)
+            console.log(data)
         } catch (error:any) {
             toast.error(error.message)
         }
@@ -173,3 +174,6 @@ const CommentContextProvider = ({ children }: { children: React.ReactNode }) => 
         </CommentContext.Provider>
     )
 }
+
+
+export const useComment = ()=>useContext(CommentContext)
