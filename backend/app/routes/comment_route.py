@@ -3,6 +3,7 @@ from app.deps.auth_dep import get_current_user
 from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.models.comment_model import Comment
+from app.models.user_model import User
 from app.schemas.comment_schema import CreateComment,UpdateComment
 from app.schemas.response_schema import ApiResponse
 from typing import Optional
@@ -100,11 +101,33 @@ def delete_post(comment_id:int,user=Depends(get_current_user),db:Session=Depends
 @router.get("/posts/{post_id}")
 def getall_comments_by_post_id(post_id:int,user=Depends(get_current_user),db:Session=Depends(get_db)):
     try:
-        comments = db.query(Comment).filter(Comment.post_id==post_id).all()
+        comments =( 
+            db.query(Comment,User)
+              .filter(Comment.post_id==post_id)
+              .join(User,Comment.user_id == User.id)
+              .all()
+            )
+        
+        result = []
+        for c, u in comments:
+            result.append({
+                "id": c.id,
+                "text":c.text,
+                "postId": c.post_id,
+                "parentCommentId": c.parent_comment_id,
+                "createdAt": c.created_at,
+                "updatedAt":c.updated_at,
+                "user": {
+                    "id": u.id,
+                    "name": u.name,
+                    "profileImage": u.profile_image,
+                }
+            })
+            
         return ApiResponse(
             statusCode=200,
             message="Comment fetched successfully",
-            data=comments
+            data=result[0]
         ).model_dump()
     except HTTPException as e:
         db.rollback()

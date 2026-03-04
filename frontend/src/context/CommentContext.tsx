@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import { useAuth } from "./UserContext";
 import type { CommentType } from "../types/comment";
 import toast from "react-hot-toast";
@@ -33,6 +33,11 @@ const CommentContextProvider = ({ children }: { children: React.ReactNode }) => 
 
     const [comments, setComments] = useState<CommentType[]>([])
     const { user, token } = useAuth();
+
+
+    useEffect(()=>{
+        fetchComment()
+    },[])
 
     const createComment = async ({ postId, text, parentCommentId }: CreateComment) => {
         if (!user) return;
@@ -138,7 +143,29 @@ const CommentContextProvider = ({ children }: { children: React.ReactNode }) => 
             toast.error(error?.message)
         }
     }
-    const fetchComment = () => { }
+    const fetchComment = async(postId:number) => {
+        try {
+            const response = await fetch(`${URL}/${postId}`,{
+                method:"GET",
+                headers:{
+                   "Content-Type":"application/json",
+                   "Authorization":`Bearer ${token}` 
+                }
+            })
+            if (!response.ok){
+                throw new Error("Failed to fetch Comments")
+            }
+
+            const data  = await response.json();
+            if (!data.success){
+                throw new Error(data?.message||"Something went wrong")
+            }
+            toast.success(data?.message)
+            setComments(data.data)
+        } catch (error:any) {
+            toast.error(error.message)
+        }
+    }
 
     return (
         <CommentContext.Provider value={{ comments, createComment, deleteComment, updateComment, fetchComment }}>
