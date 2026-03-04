@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.models.post_model import Post
 from app.models.user_model import User
 from app.models.like_model import Like
+from app.models.comment_model import Comment
 from app.deps.auth_dep import get_current_user
 from app.utils.imagekit import upload_file_on_imagekit
 from app.schemas.post_schema import PostUpdate
@@ -152,6 +153,9 @@ def get_posts(user=Depends(get_current_user), db: Session = Depends(get_db)):
         like_count = (
             db.query(Like).filter(Like.post_id == Post.id).count()
         )
+        comment_count = (
+            db.query(Comment).filter(Comment.post_id == Post.id).count()
+        )
 
         result = []
 
@@ -165,6 +169,7 @@ def get_posts(user=Depends(get_current_user), db: Session = Depends(get_db)):
                 "updatedAt": post.updated_at,
                 "isLiked": is_liked,
                 "likeCount": like_count,
+                "commentCount":comment_count,
                 "user": {
                     "id": post_user.id,
                     "name": post_user.name,

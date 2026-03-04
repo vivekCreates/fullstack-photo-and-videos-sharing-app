@@ -22,8 +22,8 @@ export const PostDetails = () => {
   const [editableCommentId, seteditableCommentId] = useState<number | null>(null);
 
   const [parentCommentId,setParentCommentId] = useState<number|null>(null)
-
   const { createComment, comments, fetchComment, updateComment } = useComment()
+
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -184,6 +184,7 @@ export const PostDetails = () => {
             {/* Comments List */}
             <div className="space-y-5 min-h-[80px]">
               {
+                
                 comments ? comments.map(c => (
                   <CommentItem
                     key={c.id}
