@@ -69,6 +69,26 @@ const CommentContextProvider = ({ children }: { children: React.ReactNode }) => 
         }
     };
     
+    const deleteComment = async(commentId:number) => {
+        const prevComments = comments;
+        setComments(prev=>prev.filter(c=>c.id != commentId))
+        try {
+            const response = await fetch(`${URL}/${commentId}`)
+            if (!response.ok){
+                throw new Error("Failed to delete comment")
+            }
+            const data = await response.json()
+
+            if(!data.success){
+                throw new Error(data?.message || "Something went wrong")
+            }
+            toast.success(data.message)
+        } catch (error:any) {
+            setComments(prevComments)
+            toast.error(error?.message)
+        }
+     }
+
     const updateComment = () => { }
     const fetchComment = () => { }
 
