@@ -44,3 +44,24 @@ def bookmark_post(post_id:int,user=Depends(get_current_user),db:Session=Depends(
             statusCode=500,
             message=str(e)
         )
+        
+@router.get("/")
+def bookmark_post(user=Depends(get_current_user),db:Session=Depends(get_db)):
+    try:
+        bookmarked_posts = db.query(Bookmark).filter(Bookmark.user_id == user.id).all()
+        if not bookmarked_posts:
+            return ApiResponse(
+                statusCode=404,
+                message="Bookmark Posts not found",
+            )
+        return ApiResponse(
+                statusCode=200,
+                message="Bookmark posts fetched successfully",
+                data=bookmarked_posts
+            ).model_dump()
+    except HTTPException as e:
+        print(str(e))
+        return ApiResponse(
+            statusCode=500,
+            message=str(e)
+        )
