@@ -4,130 +4,131 @@ import toast from "react-hot-toast";
 
 
 type UserContextType = {
-    isLoggedIn:boolean,
-    token:string|null,
-    user:User | null,
-    loading:boolean,
-    register:(user:UserRegister)=>void,
-    login:(user:UserLogin)=>void,
-    logout:()=>void
+    isLoggedIn: boolean,
+    token: string | null,
+    user: User | null,
+    loading: boolean,
+    register: (user: UserRegister) => void,
+    login: (user: UserLogin) => void,
+    logout: () => void
 }
 
 const UserContext = createContext<UserContextType>({
-    isLoggedIn:false,
-    token:"",
-    user:null,
-    loading:true,
-    register:async()=>{},
-    login:async()=>{},
-    logout:async()=>{},
+    isLoggedIn: false,
+    token: "",
+    user: null,
+    loading: true,
+    register: async () => { },
+    login: async () => { },
+    logout: async () => { },
 })
 
 const URL = "http://localhost:8000/api/auth"
 
-export const UserContextProvider = ({children}:{children:React.ReactNode}) =>{
+export const UserContextProvider = ({ children }: { children: React.ReactNode }) => {
 
-    const [user,setUser] = useState<User|null>(null);
-    const [isLoggedIn,setIsLoggedIn] = useState(false);
-    const [loading,setLoading] = useState(true);
+    const [user, setUser] = useState<User | null>(null);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [loading, setLoading] = useState(true);
 
-    const [token,setToken] = useState<string|null>(localStorage.getItem("token"))
+    const [token, setToken] = useState<string | null>(localStorage.getItem("token"))
 
-useEffect(() => {
-  const fetchUser = async () => {
-    try {
-      setLoading(true)
-      const resposne = await fetch(`${URL}/me`, {
-          method:"GET",
-          credentials: "include",
-          headers:{
-            Authorization:`Bearer ${token}`
-        }
-      });
-      
-      const data = await resposne.json();
-      console.log(data)
+    useEffect(() => {
+        // if(!token) return
+        const fetchUser = async () => {
+            try {
+                setLoading(true)
+                const resposne = await fetch(`${URL}/me`, {
+                    method: "GET",
+                    credentials: "include",
+                    // headers: {
+                    //     Authorization: `Bearer ${token}`
+                    // }
+                });
 
-      if (!data.success){
-        toast.error(data.message)
-      }
-      console.log(data)
-      setIsLoggedIn(true)
-      setUser(data.data);
-      toast.success(data.message)
-    } catch(error:any) {
-    toast.error(error.message)
-      setUser(null);
-      setToken("")
-    }
-    finally{
-        setLoading(false)
-    }
-  };
+                const data = await resposne.json();
+                console.log(data)
 
-  fetchUser();
-}, []);
+                if (!data.success) {
+                    toast.error(data.message)
+                }
+                console.log(data)
+                setIsLoggedIn(true)
+                setUser(data.data);
+                toast.success(data.message)
+            } catch (error: any) {
+                toast.error(error.message)
+                setUser(null);
+                setToken("")
+            }
+            finally {
+                setLoading(false)
+            }
+        };
+
+        fetchUser();
+    }, []);
 
 
-    const register = async(user:UserRegister) => {
+    const register = async (user: UserRegister) => {
         try {
             const response = await fetch(`${URL}/register`,
                 {
-                    method:"POST",
-                    headers:{
-                        "Content-Type":"application/json"
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
                     },
-                    body:JSON.stringify(user)
+                    body: JSON.stringify(user)
                 }
             )
 
             const data = await response.json()
-            console.log("data: ",data)
-            if (!data.success){
+            console.log("data: ", data)
+            if (!data.success) {
                 throw new Error(data.message)
             }
             toast.success(data.message)
-        } catch (error:any) {
+        } catch (error: any) {
             toast.error(error.message)
         }
     }
-    const login = async(user:UserLogin) => {
-         try {
+    const login = async (user: UserLogin) => {
+        try {
             const response = await fetch(`${URL}/login`,
                 {
-                    method:"POST",
-                    headers:{
-                        "Content-Type":"application/json"
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
                     },
-                    body:JSON.stringify(user)
+                    body: JSON.stringify(user)
                 }
             )
 
             const data = await response.json()
-            if (!data.success){
+            if (!data.success) {
                 throw new Error(data.message)
             }
-            localStorage.setItem("token",data.data.token)
+            localStorage.setItem("token", data.data.token)
             setIsLoggedIn(true)
             setToken(data.data.token)
             setUser(data.data.user)
             toast.success(data.message)
-        } catch (error:any) {
+        } catch (error: any) {
             toast.error(error.message)
         }
     }
-    const logout = async() => {
+    const logout = async () => {
         try {
             const response = await fetch(`${URL}/logout`,
                 {
-                    method:"POST",
-                    headers:{
-                        "Content-Type":"application/json"
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
                     },
                 }
             )
             const data = await response.json()
-            if (!data.success){
+            if (!data.success) {
                 toast.success(data.message)
             }
             localStorage.removeItem("token")
@@ -135,13 +136,13 @@ useEffect(() => {
             setIsLoggedIn(false)
             setUser(null);
             toast.success(data.message)
-        } catch (error:any) {
+        } catch (error: any) {
             toast.error(error.message)
         }
     }
 
 
-    return <UserContext.Provider value={{register,login,logout,isLoggedIn,user,token,loading}}>
+    return <UserContext.Provider value={{ register, login, logout, isLoggedIn, user, token, loading }}>
         {children}
     </UserContext.Provider>
 }

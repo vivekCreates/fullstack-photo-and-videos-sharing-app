@@ -30,8 +30,9 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
     const [posts, setPosts] = useState<PostType[] | []>([])
 
     useEffect(() => {
+        if (!user) return;
         getPosts()
-    }, [])
+    }, [user])
 
     const getPosts = async () => {
         try {
