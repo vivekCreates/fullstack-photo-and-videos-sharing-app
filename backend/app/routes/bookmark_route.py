@@ -6,7 +6,7 @@ from app.models.bookmark_model import Bookmark
 from app.models.post_model import Post
 from app.schemas.response_schema import ApiResponse
 
-router = APIRouter(prefix="bookmarks")
+router = APIRouter(prefix="/bookmarks")
 
 
 @router.post("/{post_id}")
