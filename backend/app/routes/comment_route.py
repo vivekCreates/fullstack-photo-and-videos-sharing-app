@@ -67,7 +67,7 @@ def update_comment(comment_id:int,comment_body:UpdateComment,user=Depends(get_cu
         )
         
 @router.delete("/{comment_id}")
-def delete_post(comment_id:int,user=Depends(get_current_user),db:Session=Depends(get_db)):
+def delete_comment(comment_id:int,user=Depends(get_current_user),db:Session=Depends(get_db)):
     try:
         comment = db.query(Comment).filter(Comment.id ==comment_id ).first()
         

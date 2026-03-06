@@ -1,4 +1,4 @@
-from fastapi import APIRouter,Depends,HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from app.deps.auth_dep import get_current_user
 from sqlalchemy.orm import Session
 from app.db.session import get_db
@@ -10,7 +10,9 @@ router = APIRouter(prefix="/bookmarks")
 
 
 @router.post("/{post_id}")
-def bookmark_post(post_id:int,user=Depends(get_current_user),db:Session=Depends(get_db)):
+def bookmark_post(
+    post_id: int, user=Depends(get_current_user), db: Session = Depends(get_db)
+):
     try:
         existed_post = db.query(Post).filter(Post.id == post_id).first()
         if not existed_post:
@@ -18,35 +20,25 @@ def bookmark_post(post_id:int,user=Depends(get_current_user),db:Session=Depends(
                 statusCode=404,
                 message="Post not found",
             )
-            
-        bookmark = Bookmark(
-            user_id=user.id,
-            post_id=post_id
-        )
-        
+
+        bookmark = Bookmark(user_id=user.id, post_id=post_id)
+
         db.add(bookmark)
         db.commit()
         db.refresh(bookmark)
-        
+
         if not bookmark:
-            return ApiResponse(
-                statusCode=400,
-                message="Failed to bookmark post"
-            )
+            return ApiResponse(statusCode=400, message="Failed to bookmark post")
         return ApiResponse(
-                statusCode=200,
-                message="Post bookmark successfully",
-                data=bookmark
-            ).model_dump()
+            statusCode=200, message="Post bookmark successfully", data=bookmark
+        ).model_dump()
     except HTTPException as e:
         print(str(e))
-        return ApiResponse(
-            statusCode=500,
-            message=str(e)
-        )
-        
+        return ApiResponse(statusCode=500, message=str(e))
+
+
 @router.get("/")
-def bookmark_post(user=Depends(get_current_user),db:Session=Depends(get_db)):
+def bookmark_post(user=Depends(get_current_user), db: Session = Depends(get_db)):
     try:
         bookmarked_posts = db.query(Bookmark).filter(Bookmark.user_id == user.id).all()
         if not bookmarked_posts:
@@ -55,13 +47,37 @@ def bookmark_post(user=Depends(get_current_user),db:Session=Depends(get_db)):
                 message="Bookmark Posts not found",
             )
         return ApiResponse(
-                statusCode=200,
-                message="Bookmark posts fetched successfully",
-                data=bookmarked_posts
-            ).model_dump()
+            statusCode=200,
+            message="Bookmark posts fetched successfully",
+            data=bookmarked_posts,
+        ).model_dump()
     except HTTPException as e:
         print(str(e))
+        return ApiResponse(statusCode=500, message=str(e))
+
+
+@router.delete("/{post_id}")
+def bookmark_post(
+    post_id: int, user=Depends(get_current_user), db: Session = Depends(get_db)
+):
+    try:
+        post = db.query(Bookmark).filter(Bookmark.post_id == post_id).first()
+        if not post:
+            return ApiResponse(
+                statusCode=404,
+                message="Bookmark Posts not found",
+            )
+
+        if post.user_id != user.id:
+            return ApiResponse(
+                statusCode=400, message="You are not authenticate to delete this post"
+            )
+        db.delete(post)
+        db.commit()
         return ApiResponse(
-            statusCode=500,
-            message=str(e)
+            statusCode=200,
+            message="Bookmark posts deleted successfully",
         )
+    except HTTPException as e:
+        print(str(e))
+        return ApiResponse(statusCode=500, message=str(e))
