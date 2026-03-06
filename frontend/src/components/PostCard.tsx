@@ -100,7 +100,7 @@ export const PostCard = ({
         src={postImage}
         onClick={() => navigate(`/post/${id}`)}
         alt="post"
-        className="w-full max-h-60 object-cover object-center"
+        className="w-full h-60 object-cover object-center"
       />
 
       <div className="px-3 py-3 space-y-1.5">
