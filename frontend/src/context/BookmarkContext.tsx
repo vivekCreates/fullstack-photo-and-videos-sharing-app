@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import type { PostType } from "../types/post";
 import { useAuth } from "./UserContext";
 import toast from "react-hot-toast";
@@ -21,10 +21,13 @@ const URL = "http://localhost:8000/api/bookmarks"
 
 export const BookmarkContextProvider = ({ children }: { children: React.ReactNode }) => {
     const [bookmarks, setBookmarks] = useState<PostType[]>([])
-    const { token } = useAuth();
+    const { token,user } = useAuth();
 
 
+
+   console.log(bookmarks)
     const addToBookmark = async (id: number) => {
+        setBookmarks(prev=>prev.map(b=>b.id == id ? {...b,isBookmark:!b.isBookmark}:b))
         try {
             const response = await fetch(`${URL}/${id}`, {
                 method: "POST",
@@ -45,12 +48,14 @@ export const BookmarkContextProvider = ({ children }: { children: React.ReactNod
 
             toast.success(data.message)
         } catch (error: any) {
+             setBookmarks(prev=>prev.map(b=>b.id == id ? {...b,isBookmark:!b.isBookmark}:b))
             console.log(error?.message)
             toast.error(error?.message)
         }
     }
 
     const removeToBookmark = async (id: number) => {
+                setBookmarks(prev=>prev.map(b=>b.id == id ? {...b,isBookmark:!b.isBookmark}:b))
         try {
             const response = await fetch(`${URL}/${id}`, {
                 method: "DELETE",
@@ -69,8 +74,9 @@ export const BookmarkContextProvider = ({ children }: { children: React.ReactNod
                 throw new Error(data?.message || "Something went wrong")
             }
 
-            toast.success(data.success)
+            toast.success(data.message)
         } catch (error: any) {
+             setBookmarks(prev=>prev.map(b=>b.id == id ? {...b,isBookmark:!b.isBookmark}:b))
             console.log(error?.message)
             toast.error(error?.message)
         }
@@ -94,6 +100,7 @@ export const BookmarkContextProvider = ({ children }: { children: React.ReactNod
             if(!data.success){
                 throw new Error(data?.message || "Something went wrong")
             }
+            console.log("data: ")
             setBookmarks(data?.data)
             toast.success(data.success)
         } catch (error:any) {

@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.models.bookmark_model import Bookmark
 from app.models.post_model import Post
+from app.models.user_model import User
 from app.schemas.response_schema import ApiResponse
 
 router = APIRouter(prefix="/bookmarks")
@@ -38,10 +39,26 @@ def bookmark_post(
 
 
 @router.get("/")
-def bookmark_post(user=Depends(get_current_user), db: Session = Depends(get_db)):
+def get_bookmark_post(user=Depends(get_current_user), db: Session = Depends(get_db)):
     try:
-        bookmarked_posts = db.query(Bookmark).filter(Bookmark.user_id == user.id).all()
-        if not bookmarked_posts:
+        bookmarked_posts = (
+          db.query(Post.id, Post.file, Post.title)
+            .join(Bookmark, Bookmark.post_id == Post.id)
+            .filter(Bookmark.user_id == user.id)
+            .all()
+        )
+        
+        result = [
+        {
+            "id": post.id,
+            "postImage": post.file,
+            "title": post.title,
+            "isBookmark": True
+            }
+        for post in bookmarked_posts
+       ]
+        
+        if not result:
             return ApiResponse(
                 statusCode=404,
                 message="Bookmark Posts not found",
@@ -49,7 +66,7 @@ def bookmark_post(user=Depends(get_current_user), db: Session = Depends(get_db))
         return ApiResponse(
             statusCode=200,
             message="Bookmark posts fetched successfully",
-            data=bookmarked_posts,
+            data=result,
         ).model_dump()
     except HTTPException as e:
         print(str(e))
@@ -57,7 +74,7 @@ def bookmark_post(user=Depends(get_current_user), db: Session = Depends(get_db))
 
 
 @router.delete("/{post_id}")
-def bookmark_post(
+def delete_bookmark_post(
     post_id: int, user=Depends(get_current_user), db: Session = Depends(get_db)
 ):
     try:

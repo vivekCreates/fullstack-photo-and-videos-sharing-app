@@ -12,6 +12,7 @@ type PostCardProps = {
   description: string;
   postImage: string;
   isLiked: boolean;
+  isBookmark: boolean;
   profileImage: string;
   likeCount: number;
   commentCount: number
@@ -25,6 +26,7 @@ export const PostCard = ({
   description,
   commentCount,
   postImage,
+  isBookmark,
   isLiked,
   likeCount,
   profileImage,
@@ -45,7 +47,7 @@ export const PostCard = ({
   }, []);
   const { user } = useAuth()
   const { deletePost, likeOrDislike } = usePost();
-  const {addToBookmark} = useBookmark();
+  const { addToBookmark,removeToBookmark } = useBookmark();
   const navigate = useNavigate();
 
 
@@ -120,11 +122,17 @@ export const PostCard = ({
               <MessageCircle size={18} />
               <p>{commentCount}</p>
             </div>
-            </div>
-            <div onClick={()=>addToBookmark(id)} className="flex gap-2 items-center bg-zinc-700 py-1 px-2 rounded-3xl">
-              <Bookmark size={18} />
-
           </div>
+              <div onClick={() => {
+                if(isBookmark){
+                  removeToBookmark(id)
+                }else{
+                  addToBookmark(id)
+                }
+              }} className="flex gap-2 items-center bg-zinc-700 py-1 px-2 rounded-3xl">
+                <Bookmark size={18} fill={isBookmark ? "red" :""} />
+              </div>
+             
         </div>
 
         <p className="text-xs text-zinc-400 leading-snug">

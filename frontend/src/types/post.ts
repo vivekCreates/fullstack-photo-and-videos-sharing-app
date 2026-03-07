@@ -6,6 +6,7 @@ export type PostType = {
     createdAt:Date,
     updateAt:Date,
     isLiked:boolean,
+    isBookmark:boolean,
     likeCount:number,
     commentCount:number,
     user:{
