@@ -27,7 +27,7 @@ export const BookmarkContextProvider = ({ children }: { children: React.ReactNod
     const addToBookmark = async (id: number) => {
         try {
             const response = await fetch(`${URL}/${id}`, {
-                method: "GET",
+                method: "POST",
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }
@@ -43,7 +43,7 @@ export const BookmarkContextProvider = ({ children }: { children: React.ReactNod
                 throw new Error(data?.message || "Something went wrong")
             }
 
-            toast.success(data.success)
+            toast.success(data.message)
         } catch (error: any) {
             console.log(error?.message)
             toast.error(error?.message)

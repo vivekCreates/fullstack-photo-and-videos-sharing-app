@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.models.post_model import Post
 from app.models.user_model import User
 from app.models.like_model import Like
+from app.models.bookmark_model import Bookmark
 from app.models.comment_model import Comment
 from app.deps.auth_dep import get_current_user
 from app.utils.imagekit import upload_file_on_imagekit
@@ -135,12 +136,23 @@ def get_posts(user=Depends(get_current_user), db: Session = Depends(get_db)):
             .correlate(Post)
             .exists()
         )
+        
+        is_bookmark = (
+            db.query(Bookmark.id)
+            .filter(
+                Bookmark.post_id == Post.id,
+                Bookmark.user_id == user.id
+            )
+            .correlate(Post)
+            .exists()
+        )
 
         posts = (
             db.query(
                 Post,
                 User,
                 is_liked.label("isLiked"),
+                is_bookmark.label("isBookmark"),
                 func.coalesce(like_count_subq.c.likeCount, 0),
                 func.coalesce(comment_count_subq.c.commentCount, 0),
             )
@@ -152,7 +164,7 @@ def get_posts(user=Depends(get_current_user), db: Session = Depends(get_db)):
 
         result = []
 
-        for post, post_user, is_liked_value, like_count, comment_count in posts:
+        for post, post_user, is_liked_value,is_bookmark_value, like_count, comment_count in posts:
             result.append({
                 "id": post.id,
                 "title": post.title,
@@ -161,6 +173,7 @@ def get_posts(user=Depends(get_current_user), db: Session = Depends(get_db)):
                 "createdAt": post.created_at,
                 "updatedAt": post.updated_at,
                 "isLiked": is_liked_value,
+                "isBookmark":is_bookmark_value,
                 "likeCount": like_count,
                 "commentCount": comment_count,
                 "user": {

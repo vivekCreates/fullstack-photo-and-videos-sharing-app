@@ -3,6 +3,7 @@ import { Bookmark, Heart, MessageCircle, MoreVertical } from "lucide-react";
 import { useAuth } from "../context/UserContext";
 import { usePost } from "../context/PostContext";
 import { useNavigate } from "react-router";
+import { useBookmark } from "../context/BookmarkContext";
 
 type PostCardProps = {
   id: number;
@@ -43,7 +44,8 @@ export const PostCard = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
   const { user } = useAuth()
-  const { deletePost, likeOrDislike } = usePost()
+  const { deletePost, likeOrDislike } = usePost();
+  const {addToBookmark} = useBookmark();
   const navigate = useNavigate();
 
 
@@ -119,7 +121,7 @@ export const PostCard = ({
               <p>{commentCount}</p>
             </div>
             </div>
-            <div className="flex gap-2 items-center bg-zinc-700 py-1 px-2 rounded-3xl">
+            <div onClick={()=>addToBookmark(id)} className="flex gap-2 items-center bg-zinc-700 py-1 px-2 rounded-3xl">
               <Bookmark size={18} />
 
           </div>
