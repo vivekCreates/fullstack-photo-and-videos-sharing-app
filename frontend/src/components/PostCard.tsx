@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Heart, MessageCircle, MoreVertical } from "lucide-react";
+import { Bookmark, Heart, MessageCircle, MoreVertical } from "lucide-react";
 import { useAuth } from "../context/UserContext";
 import { usePost } from "../context/PostContext";
 import { useNavigate } from "react-router";
@@ -13,7 +13,7 @@ type PostCardProps = {
   isLiked: boolean;
   profileImage: string;
   likeCount: number;
-  commentCount:number
+  commentCount: number
   userId: number
 };
 
@@ -108,14 +108,20 @@ export const PostCard = ({
           {title}
         </h2>
 
-        <div className="flex gap-2 items-center">
-          <div className="flex gap-2 items-center bg-zinc-700 py-1 px-3 rounded-3xl">
-            <Heart fill={isLiked ? "red" : "none"} size={20} onClick={() => likeOrDislike(id)} />
-            <p>{likeCount}</p>
-          </div>
-          <div className="flex gap-2 items-center bg-zinc-700 py-1 px-2 rounded-3xl">
-            <MessageCircle size={18} />
-            <p>{commentCount}</p>
+        <div className="flex items-center justify-between">
+          <div className="flex gap-2 items-center">
+            <div className="flex gap-2 items-center bg-zinc-700 py-1 px-3 rounded-3xl">
+              <Heart fill={isLiked ? "red" : "none"} size={20} onClick={() => likeOrDislike(id)} />
+              <p>{likeCount}</p>
+            </div>
+            <div className="flex gap-2 items-center bg-zinc-700 py-1 px-2 rounded-3xl">
+              <MessageCircle size={18} />
+              <p>{commentCount}</p>
+            </div>
+            </div>
+            <div className="flex gap-2 items-center bg-zinc-700 py-1 px-2 rounded-3xl">
+              <Bookmark size={18} />
+
           </div>
         </div>
 
