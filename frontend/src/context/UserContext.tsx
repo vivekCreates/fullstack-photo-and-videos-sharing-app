@@ -34,16 +34,15 @@ export const UserContextProvider = ({ children }: { children: React.ReactNode })
     const [token, setToken] = useState<string | null>(localStorage.getItem("token"))
 
     useEffect(() => {
-        // if(!token) return
         const fetchUser = async () => {
             try {
                 setLoading(true)
                 const resposne = await fetch(`${URL}/me`, {
                     method: "GET",
                     credentials: "include",
-                    // headers: {
-                    //     Authorization: `Bearer ${token}`
-                    // }
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
                 });
 
                 const data = await resposne.json();

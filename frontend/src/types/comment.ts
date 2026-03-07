@@ -11,3 +11,4 @@ export type CommentType = {
         profileImage:string
     }
 } 
+

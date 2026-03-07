@@ -8,6 +8,7 @@ import { convertDate } from "../utils/utility";
 import { Loader } from "lucide-react";
 import { useComment } from "../context/CommentContext";
 import CommentItem from "../components/Comment";
+import CommentList from "../components/CommentList";
 
 
 export const PostDetails = () => {
@@ -19,9 +20,9 @@ export const PostDetails = () => {
   const [showComments, setShowComments] = useState(false);
   const [comment, setComment] = useState("")
   const [isCommentEditable, setIsCommentEditable] = useState(false);
-  const [editableCommentId, seteditableCommentId] = useState<number | null>(null);
+  const [editableCommentId, setEditableCommentId] = useState<number | null>(null);
 
-  const [parentCommentId,setParentCommentId] = useState<number|null>(null)
+  const [parentCommentId, setParentCommentId] = useState<number | null>(null)
   const { createComment, comments, fetchComment, updateComment } = useComment()
 
 
@@ -127,7 +128,7 @@ export const PostDetails = () => {
               <button
                 onClick={() => {
                   fetchComment(Number(id))
-                  setShowComments(!showComments)
+                  setShowComments(prev=>!prev)
                 }}
                 className="text-sm text-zinc-400 hover:text-white transition"
 
@@ -156,6 +157,7 @@ export const PostDetails = () => {
               {
                 isCommentEditable ? (
                   <button onClick={() => {
+                    
                     updateComment({ commentId: editableCommentId!, text: comment })
                     setComment("")
                     setIsCommentEditable(!isCommentEditable)
@@ -170,7 +172,7 @@ export const PostDetails = () => {
                       createComment({ postId: post.id, parentCommentId, text: comment })
                       setComment("")
                     }
-                      } 
+                    }
                       className="bg-[#8B5CF6] px-4 py-2 rounded-lg hover:bg-zinc-700 transition">
                       Post
                     </button>
@@ -183,32 +185,16 @@ export const PostDetails = () => {
 
             {/* Comments List */}
             <div className="space-y-5 min-h-[80px]">
-              {
-                
-                comments ? comments.map(c => (
-                  <CommentItem
-                    key={c.id}
-                    id={c.id}
-                    user={c.user}
-                    parentCommentId={c.parentCommentId}
-                    setParentCommentId={setParentCommentId}
-                    text={c.text}
-                    createdAt={c.createdAt}
-                    updatedAt={c.updatedAt}
-                    postId={c.postId}
-                    commentInput={comment}
-                    setCommentInput={setComment}
-                    setIsCommentEditable={setIsCommentEditable}
-                    setEditableCommentId={seteditableCommentId}
-                    isCommentEditable={isCommentEditable}
-                  />
-                )) :
-                  (
-                    <p className="text-zinc-500 text-sm">
-                      No comments yet.
-                    </p>
-                  )
-              }
+               <CommentList
+                  comments={comments}
+                  parentId={null}
+                  commentInput={comment}
+                  isCommentEditable={isCommentEditable}
+                  setCommentInput={setComment}
+                  setIsCommentEditable={setIsCommentEditable}
+                  setEditableCommentId={setEditableCommentId}
+                  setParentCommentId={setParentCommentId}
+                />
 
             </div>
 

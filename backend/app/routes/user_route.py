@@ -75,9 +75,7 @@ def login(user: UserLogin, response: Response, db: Session = Depends(get_db)):
         key="token",
         value=token,
         httponly=True,
-        secure=False,    
-        samesite="lax",
-        path="/"
+        max_age=60 * 60 * 24
         )
         return ApiResponse(
                 statusCode=200,
@@ -99,10 +97,8 @@ def logout(response: Response):
     try:
         response.delete_cookie(
         key="token",
-        path="/",
         httponly=True,
         secure=False,
-        samesite="lax",
     )
         return ApiResponse(
             statusCode=200,
@@ -155,6 +151,7 @@ def get_logged_in_user(
     user=Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    print("run getLogged")
     current_user = db.query(User).filter(User.id == user.id).first()
 
     if not current_user:
