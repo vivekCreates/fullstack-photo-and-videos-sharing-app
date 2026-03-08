@@ -23,7 +23,7 @@ def add_to_bookmark_and_remove(
             db.refresh(bookmark)
             
             return ApiResponse(
-            statusCode=200, message="Post bookmark successfully", data=bookmark
+            statusCode=200, message="bookmark successfully", data=bookmark
         ).model_dump()
         else:
             if bookmarked_post.user_id != user.id:
@@ -34,7 +34,7 @@ def add_to_bookmark_and_remove(
             db.commit()
             return ApiResponse(
                 statusCode=200,
-                message="Bookmark posts deleted successfully",
+                message="Bookmark deleted successfully",
             )
     except HTTPException as e:
         print(str(e))

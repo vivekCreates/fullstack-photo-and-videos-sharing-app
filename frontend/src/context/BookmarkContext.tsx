@@ -2,18 +2,17 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { useAuth } from "./UserContext";
 import toast from "react-hot-toast";
 import type { BookmarkPost } from "../types/bookmark";
+import { usePost } from "./PostContext";
 
 type BookmarkContextType = {
     bookmarks: BookmarkPost[],
-    addToBookmark: (postId: number) => void,
-    removeToBookmark: (postId: number) => void,
+    toggleBookmark: (postId: number) => void,
     getAllBookmarks: () => void
 }
 
 const BookmarkContext = createContext<BookmarkContextType>({
     bookmarks: [],
-    addToBookmark: async () => { },
-    removeToBookmark: async () => { },
+    toggleBookmark: async () => { },
     getAllBookmarks: async () => { }
 })
 
@@ -22,14 +21,15 @@ const URL = "http://localhost:8000/api/bookmarks"
 export const BookmarkContextProvider = ({ children }: { children: React.ReactNode }) => {
     const [bookmarks, setBookmarks] = useState<BookmarkPost[]>([])
     const { token,user } = useAuth();
+    const {setPosts} = usePost();
 
 
     useEffect(()=>{
         getAllBookmarks()
     },[])
  
-    const addToBookmark = async (id: number) => {
-        // setBookmarks(prev=>prev.map(b=>b.id == id ? {...b,isBookmark:!b.isBookmark}:b))
+    const toggleBookmark = async (id: number) => {
+        setPosts(prev=>prev.map(b=>b.id == id ? {...b,isBookmark:!b.isBookmark}:b))
         try {
             const response = await fetch(`${URL}/${id}`, {
                 method: "POST",
@@ -50,40 +50,12 @@ export const BookmarkContextProvider = ({ children }: { children: React.ReactNod
 
             toast.success(data.message)
         } catch (error: any) {
-            //  setBookmarks(prev=>prev.map(b=>b.id == id ? {...b,isBookmark:!b.isBookmark}:b))
+             setPosts(prev=>prev.map(b=>b.id == id ? {...b,isBookmark:!b.isBookmark}:b))
             console.log(error?.message)
             toast.error(error?.message)
         }
     }
  
-    const removeToBookmark = async (id: number) => {
-         console.log("removeBookmark: ",removeToBookmark)   // setBookmarks(prev=>prev.map(b=>b.id == id ? {...b,isBookmark:!b.isBookmark}:b))
-        try {
-            const response = await fetch(`${URL}/${id}`, {
-                method: "DELETE",
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                }
-            })
-
-            if (!response.ok) {
-                throw new Error("Failed to delete bookmark post")
-            }
-
-            const data = await response.json()
-
-            if (!data.success) {
-                throw new Error(data?.message || "Something went wrong")
-            }
-
-            toast.success(data.message)
-        } catch (error: any) {
-            //  setBookmarks(prev=>prev.map(b=>b.id == id ? {...b,isBookmark:!b.isBookmark}:b))
-            console.log(error?.message)
-            toast.error(error?.message)
-        }
-    }
-
     const getAllBookmarks = async()=>{
           try {
             const response = await fetch(`${URL}`,{
@@ -112,7 +84,7 @@ export const BookmarkContextProvider = ({ children }: { children: React.ReactNod
     }
 
     return (
-        <BookmarkContext.Provider value={{ bookmarks, addToBookmark ,removeToBookmark,getAllBookmarks}}>
+        <BookmarkContext.Provider value={{ bookmarks, toggleBookmark,getAllBookmarks}}>
             {children}
         </BookmarkContext.Provider>
     )

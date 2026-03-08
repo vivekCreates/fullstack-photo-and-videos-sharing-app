@@ -46,7 +46,8 @@ export const PostCard = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
   const { user } = useAuth()
-  const { deletePost, likeOrDislike,toggleBookmark } = usePost();
+  const { deletePost, likeOrDislike } = usePost();
+  const {toggleBookmark} = useBookmark();
   const navigate = useNavigate();
 
 
@@ -126,7 +127,7 @@ export const PostCard = ({
               <p>{commentCount}</p>
             </div>
           </div>
-          <div onClick={() => toggleBookmark(id,isBookmark)} className="flex gap-2 items-center bg-zinc-700 py-1 px-2 rounded-3xl">
+          <div onClick={() => toggleBookmark(id)} className="flex gap-2 items-center bg-zinc-700 py-1 px-2 rounded-3xl">
             <Bookmark size={18} fill={isBookmark ? "red" : "none"} />
           </div>
 

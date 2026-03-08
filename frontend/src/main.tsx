@@ -12,11 +12,11 @@ createRoot(document.getElementById('root')!).render(
         <Toaster />
 <UserContextProvider>
   <PostContextProvider>
-    <CommentContextProvider>
       <BookmarkContextProvider>
+    <CommentContextProvider>
         <App />
-      </BookmarkContextProvider>
     </CommentContextProvider>
+      </BookmarkContextProvider>
   </PostContextProvider>
 </UserContextProvider>
     </>
