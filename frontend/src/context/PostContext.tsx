@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react"
 import type { PostType } from "../types/post"
 import { useAuth } from "./UserContext"
 import toast from "react-hot-toast"
+import { useBookmark } from "./BookmarkContext"
 
 
 
@@ -11,7 +12,8 @@ type PostContextType = {
     updatePost: (id: number, postData: FormData) => {}
     deletePost: (id: number) => {}
     getPostById: (id: number) => {}
-    likeOrDislike:(postId:number)=>{}
+    likeOrDislike: (postId: number) => {}
+    toggleBookmark: (postId: number,bookmark:boolean) => {}
 }
 
 const PostContext = createContext<PostContextType>({
@@ -20,7 +22,8 @@ const PostContext = createContext<PostContextType>({
     updatePost: async () => { },
     deletePost: async () => { },
     getPostById: async () => { },
-    likeOrDislike: async()=>{}
+    likeOrDislike: async () => { },
+    toggleBookmark: async() =>{},
 })
 
 const URL = "http://localhost:8000/api/posts"
@@ -28,6 +31,7 @@ const URL = "http://localhost:8000/api/posts"
 export const PostContextProvider = ({ children }: { children: React.ReactNode }) => {
     const { token, user } = useAuth();
     const [posts, setPosts] = useState<PostType[] | []>([])
+    const {addToBookmark,removeToBookmark} = useBookmark()
 
     useEffect(() => {
         if (!user) return;
@@ -53,6 +57,7 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
             if (!data.success) {
                 throw new Error(data.message || "Something went wrong")
             }
+            console.log(data)
             setPosts(data.data)
             toast.success(data.message)
 
@@ -72,10 +77,10 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
             title: postData.get("title") as string,
             description: postData.get("description") as string,
             file: postData.get("file") as string,
-            isLiked:false,
-            isBookmark:false,
-            commentCount:0,
-            likeCount:0,
+            isLiked: false,
+            isBookmark: false,
+            commentCount: 0,
+            likeCount: 0,
             createdAt: now,
             updateAt: now,
             user: {
@@ -147,7 +152,7 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
                 },
                 body: formData,
             });
-console.log(response)
+            console.log(response)
             if (!response.ok) throw new Error("Failed");
 
             const data = await response.json();
@@ -225,13 +230,13 @@ console.log(response)
         }
     }
 
-    const likeOrDislike = async(postId:number)=>{
-        setPosts(prev=>(
+    const likeOrDislike = async (postId: number) => {
+        setPosts(prev => (
             prev.map(p => (
-                p.id ==postId ? {...p,isLiked:!p.isLiked,likeCount:p.isLiked?p.likeCount-1:p.likeCount+1}:p
+                p.id == postId ? { ...p, isLiked: !p.isLiked, likeCount: p.isLiked ? p.likeCount - 1 : p.likeCount + 1 } : p
             ))
         ))
-         try {
+        try {
             const response = await fetch(`http://localhost:8000/api/likes/${postId}`, {
                 method: "POST",
                 headers: {
@@ -251,16 +256,48 @@ console.log(response)
             }
             toast.success(data.message)
         } catch (error: any) {
-            setPosts(prev=>(
-            prev.map(p => (
-                p.id ==postId ? {...p,isLiked:!p.isLiked,likeCount:p.isLiked?p.likeCount-1:p.likeCount+1}:p
+            setPosts(prev => (
+                prev.map(p => (
+                    p.id == postId ? { ...p, isLiked: !p.isLiked, likeCount: p.isLiked ? p.likeCount - 1 : p.likeCount + 1 } : p
+                ))
             ))
-        ))
             toast.error(error.message)
         }
     }
 
-    return <PostContext.Provider value={{ posts, createPost, updatePost, deletePost, getPostById,likeOrDislike }}>
+   const toggleBookmark = async (id: number, isBookmark: boolean) => {
+
+  // optimistic UI
+  setPosts(prev =>
+    prev.map(post =>
+      post.id === id
+        ? { ...post, isBookmark: !post.isBookmark }
+        : post
+    )
+  );
+
+  try {
+    if (isBookmark) {
+      await removeToBookmark(id);
+    } else {
+      await addToBookmark(id);
+    }
+  } catch (err) {
+
+    // rollback if API fails
+    setPosts(prev =>
+      prev.map(post =>
+        post.id === id
+          ? { ...post, isBookmark }
+          : post
+      )
+    );
+
+  }
+};
+
+
+    return <PostContext.Provider value={{ posts, createPost, updatePost, deletePost, getPostById, likeOrDislike,toggleBookmark }}>
         {children}
     </PostContext.Provider>
 }

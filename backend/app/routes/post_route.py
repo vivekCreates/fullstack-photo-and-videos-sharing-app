@@ -143,7 +143,7 @@ def get_posts(user=Depends(get_current_user), db: Session = Depends(get_db)):
                 Bookmark.post_id == Post.id,
                 Bookmark.user_id == user.id
             )
-            .correlate(Post)
+            .correlate(Bookmark)
             .exists()
         )
 

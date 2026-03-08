@@ -10,15 +10,15 @@ import { BookmarkContextProvider } from './context/BookmarkContext.tsx'
 createRoot(document.getElementById('root')!).render(
     <>
         <Toaster />
-        <UserContextProvider>
-            <PostContextProvider>
-                <BookmarkContextProvider>
-                    <CommentContextProvider>
-                        <App />
-                    </CommentContextProvider>
-                </BookmarkContextProvider>
-            </PostContextProvider>
-        </UserContextProvider>
+<UserContextProvider>
+  <PostContextProvider>
+    <CommentContextProvider>
+      <BookmarkContextProvider>
+        <App />
+      </BookmarkContextProvider>
+    </CommentContextProvider>
+  </PostContextProvider>
+</UserContextProvider>
     </>
 
 )
