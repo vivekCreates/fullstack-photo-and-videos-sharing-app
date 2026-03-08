@@ -15,8 +15,8 @@ def add_to_bookmark_and_remove(
     post_id: int, user=Depends(get_current_user), db: Session = Depends(get_db)
 ):
     try:
-        existed_post = db.query(Post).filter(Post.id == post_id).first()
-        if not existed_post:
+        bookmarked_post = db.query(Bookmark).filter(Bookmark.post_id == post_id).first()
+        if not bookmarked_post:
             bookmark = Bookmark(user_id=user.id, post_id=post_id)
             db.add(bookmark)
             db.commit()
@@ -26,11 +26,11 @@ def add_to_bookmark_and_remove(
             statusCode=200, message="Post bookmark successfully", data=bookmark
         ).model_dump()
         else:
-            if existed_post.user_id != user.id:
+            if bookmarked_post.user_id != user.id:
                 return ApiResponse(
                     statusCode=400, message="You are not authenticate to delete this post"
                 )
-            db.delete(existed_post)
+            db.delete(bookmarked_post)
             db.commit()
             return ApiResponse(
                 statusCode=200,
