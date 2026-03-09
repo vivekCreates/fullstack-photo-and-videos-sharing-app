@@ -1,15 +1,9 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/UserContext";
 import toast from "react-hot-toast";
+import type { PostType } from "../types/post";
 
-type PostType = {
-  id: number;
-  title: string;
-  description: string;
-  file: string;
-  createdAt: Date;
-  updateAt: Date;
-};
+
 
 function ProfilePage() {
   const [posts, setPosts] = useState<PostType[]>([]);
@@ -51,7 +45,7 @@ function ProfilePage() {
       if (!data.success) {
         throw new Error(data.message || "Something went wrong");
       }
-
+      console.log("posts: ",data?.data)
       setPosts(data?.data);
     } catch (error: any) {
       console.log(error?.message);
@@ -84,7 +78,7 @@ function ProfilePage() {
             @{user?.name}
           </h1>
 
-          <p className="text-zinc-400 mt-1">{posts.length} Posts</p>
+          <p className="text-zinc-400 mt-1">{posts.filter(p=>p.user.id==user?.id)?.length} Posts</p>
         </div>
 
         {/* Tabs */}
