@@ -72,6 +72,7 @@ export const PostDetails = () => {
 
       <div className="max-w-3xl mx-auto px-4 py-12">
 
+        {/* Post Card */}
         <div className="bg-black border border-zinc-800 rounded-2xl overflow-hidden
         hover:border-zinc-700 transition-all
         shadow-[0_0_25px_rgba(255,255,255,0.03)]">

@@ -54,9 +54,25 @@ async def create_post(
         db.refresh(new_post)
 
         return ApiResponse(
+            statusCode=201,
             message="Post created successfully",
-            data=post_to_dict(new_post),
-            statusCode=200,
+            data={
+                "id": new_post.id,
+                "title": new_post.title,
+                "description": new_post.description,
+                "file": new_post.file,
+                "createdAt": new_post.created_at,
+                "updateAt": new_post.updated_at,
+                "isLiked": False,
+                "isBookmark": False,
+                "likeCount": 0,
+                "commentCount": 0,
+                "user": {
+                    "id": user.id,
+                    "name": user.name,
+                    "profileImage":user.profile_image,
+                },
+            },
         ).model_dump()
     except Exception as e:
         db.rollback()
@@ -110,39 +126,27 @@ def get_posts(user=Depends(get_current_user), db: Session = Depends(get_db)):
     try:
 
         like_count_subq = (
-            db.query(
-                Like.post_id,
-                func.count(Like.id).label("likeCount")
-            )
+            db.query(Like.post_id, func.count(Like.id).label("likeCount"))
             .group_by(Like.post_id)
             .subquery()
         )
 
         comment_count_subq = (
-            db.query(
-                Comment.post_id,
-                func.count(Comment.id).label("commentCount")
-            )
+            db.query(Comment.post_id, func.count(Comment.id).label("commentCount"))
             .group_by(Comment.post_id)
             .subquery()
         )
 
         is_liked = (
             db.query(Like.id)
-            .filter(
-                Like.post_id == Post.id,
-                Like.user_id == user.id
-            )
+            .filter(Like.post_id == Post.id, Like.user_id == user.id)
             .correlate(Post)
             .exists()
         )
-        
+
         is_bookmark = (
             db.query(Bookmark.id)
-            .filter(
-                Bookmark.post_id == Post.id,
-                Bookmark.user_id == user.id
-            )
+            .filter(Bookmark.post_id == Post.id, Bookmark.user_id == user.id)
             .correlate(Post)
             .exists()
         )
@@ -164,37 +168,41 @@ def get_posts(user=Depends(get_current_user), db: Session = Depends(get_db)):
 
         result = []
 
-        for post, post_user, is_liked_value,is_bookmark_value, like_count, comment_count in posts:
-            result.append({
-                "id": post.id,
-                "title": post.title,
-                "description": post.description,
-                "file": post.file,
-                "createdAt": post.created_at,
-                "updatedAt": post.updated_at,
-                "isLiked": is_liked_value,
-                "isBookmark":is_bookmark_value,
-                "likeCount": like_count,
-                "commentCount": comment_count,
-                "user": {
-                    "id": post_user.id,
-                    "name": post_user.name,
-                    "profileImage": post_user.profile_image,
+        for (
+            post,
+            post_user,
+            is_liked_value,
+            is_bookmark_value,
+            like_count,
+            comment_count,
+        ) in posts:
+            result.append(
+                {
+                    "id": post.id,
+                    "title": post.title,
+                    "description": post.description,
+                    "file": post.file,
+                    "createdAt": post.created_at,
+                    "updatedAt": post.updated_at,
+                    "isLiked": is_liked_value,
+                    "isBookmark": is_bookmark_value,
+                    "likeCount": like_count,
+                    "commentCount": comment_count,
+                    "user": {
+                        "id": post_user.id,
+                        "name": post_user.name,
+                        "profileImage": post_user.profile_image,
+                    },
                 }
-            })
+            )
 
         return ApiResponse(
-            message="Posts fetched successfully",
-            data=result,
-            statusCode=200
+            message="Posts fetched successfully", data=result, statusCode=200
         ).model_dump()
 
     except Exception as e:
         db.rollback()
-        return ApiResponse(
-            message=str(e),
-            statusCode=500
-        ).model_dump()
+        return ApiResponse(message=str(e), statusCode=500).model_dump()
 
 
 @router.patch("/{id}")

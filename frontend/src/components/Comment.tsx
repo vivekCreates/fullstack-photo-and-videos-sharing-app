@@ -32,22 +32,31 @@ const CommentItem = ({
   const { deleteComment } = useComment();
 
   return (
-    <div className="flex gap-4 p-4 bg-zinc-900 rounded-xl border border-zinc-800 hover:border-zinc-700 transition relative">
+    <div className="group flex gap-4 p-4 bg-black border border-zinc-800
+    rounded-xl hover:border-zinc-700 transition relative
+    shadow-[0_0_15px_rgba(255,255,255,0.02)]">
 
-      <img
-        src={user?.profileImage}
-        alt={user?.name}
-        className="w-10 h-10 rounded-full object-cover"
-      />
+      {user?.profileImage ? (
+        <img
+          src={user.profileImage}
+          alt={user.name}
+          className="w-10 h-10 rounded-full object-cover border border-zinc-700"
+        />
+      ) : (
+        <div className="w-10 h-10 rounded-full flex items-center justify-center bg-zinc-800 text-sm font-semibold">
+          {user?.name?.[0]?.toUpperCase()}
+        </div>
+      )}
+
 
       <div className="flex-1">
 
-        {/* Header */}
+    
         <div className="flex items-center justify-between">
 
-          <div className="flex items-center gap-2">
-            <h4 className="text-sm font-semibold text-white">
-              {user?.name}
+          <div className="flex items-center gap-3">
+            <h4 className="text-sm font-semibold text-zinc-200">
+              @{user?.name}
             </h4>
 
             <span className="text-xs text-zinc-500">
@@ -55,18 +64,19 @@ const CommentItem = ({
             </span>
           </div>
 
-          {/* Menu */}
+     
           <div className="relative">
 
             <button
               onClick={() => setOpen(prev => !prev)}
-              className="text-zinc-500 hover:text-white transition"
+              className="p-1 rounded-full text-zinc-500 hover:text-white hover:bg-zinc-800 transition"
             >
               <MoreVertical size={18} />
             </button>
 
             {open && (
-              <div className="absolute right-0 mt-2 w-28 bg-zinc-800 border border-zinc-700 rounded-lg shadow-lg overflow-hidden z-10">
+              <div className="absolute right-0 mt-2 w-28 bg-zinc-900
+              border border-zinc-700 rounded-lg shadow-lg overflow-hidden z-50">
 
                 <button
                   onClick={() => {
@@ -75,7 +85,7 @@ const CommentItem = ({
                     setEditableCommentId(id)
                     setIsCommentEditable(!isCommentEditable)
                   }}
-                  className="block w-full text-left px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-700"
+                  className="block w-full text-left px-4 py-2 text-xs text-zinc-300 hover:bg-zinc-800"
                 >
                   Edit
                 </button>
@@ -85,7 +95,7 @@ const CommentItem = ({
                     setOpen(false)
                     deleteComment(Number(id))
                   }}
-                  className="block w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-zinc-700"
+                  className="block w-full text-left px-4 py-2 text-xs text-red-400 hover:bg-zinc-800"
                 >
                   Delete
                 </button>
@@ -94,23 +104,25 @@ const CommentItem = ({
             )}
 
           </div>
+
         </div>
 
-        {/* Comment text */}
-        <p className="mt-2 text-sm text-zinc-300 leading-relaxed">
+        <p className="mt-2 text-sm text-zinc-400 leading-relaxed">
           {text}
         </p>
 
-        {/* Reply */}
-        <span
-          className="pt-4 cursor-pointer"
+        
+        <button
+          className={`flex items-center gap-1 mt-3 text-xs transition
+          ${isReplying ? "text-[#8B5CF6]" : "text-zinc-500 hover:text-white"}`}
           onClick={() => {
             setIsReplying(!isReplying)
             setParentCommentId(id)
           }}
         >
-          <Reply size={20} color={isReplying ? "blue" : "grey"} />
-        </span>
+          <Reply size={16} />
+          Reply
+        </button>
 
       </div>
 
