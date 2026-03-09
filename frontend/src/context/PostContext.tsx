@@ -2,7 +2,6 @@ import { createContext, useContext, useEffect, useState } from "react"
 import type { PostType } from "../types/post"
 import { useAuth } from "./UserContext"
 import toast from "react-hot-toast"
-import { createLocalPost } from "../utils/localPost"
 
 
 
@@ -117,10 +116,10 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
             if (!data.success) {
                 throw new Error(data.message || "Something went wrong");
             }
-            const localPost = createLocalPost({})
+
             setPosts((prev) =>
                 prev.map((p) =>
-                    p.id === tempId ? localPost : p
+                    p.id === tempId ? data?.data : p
                 )
             );
             toast.success(data.message)
