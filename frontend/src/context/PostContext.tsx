@@ -62,9 +62,8 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
             if (!data.success) {
                 throw new Error(data.message || "Something went wrong")
             }
-            console.log(data)
             setPosts(data.data)
-            toast.success(data.message)
+          
             
 
         } catch (error: any) {
@@ -229,7 +228,6 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
             if (!data.success) {
                 throw new Error(data.message || "Something went wrong")
             }
-            toast.success(data.message)
             return data.data
         } catch (error: any) {
             toast.error(error.message)
@@ -288,12 +286,9 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
             if(!data?.success){
                 throw new Error(data?.message||"Something went wrong")
             }
-            console.log("userPosts: ",data)
             setUserPosts(data?.data)
-            toast.success(data?.message)
             return userPosts
         } catch (error:any) {
-            console.log(error?.message)
             toast.error(error?.message)
 
         }

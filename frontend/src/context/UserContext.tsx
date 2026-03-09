@@ -46,15 +46,13 @@ export const UserContextProvider = ({ children }: { children: React.ReactNode })
                 });
 
                 const data = await resposne.json();
-                console.log(data)
+
 
                 if (!data.success) {
                     toast.error(data.message)
                 }
-                console.log(data)
                 setIsLoggedIn(true)
                 setUser(data.data);
-                toast.success(data.message)
             } catch (error: any) {
                 toast.error(error.message)
                 setUser(null);
