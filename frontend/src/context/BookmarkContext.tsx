@@ -20,13 +20,9 @@ const URL = "http://localhost:8000/api/bookmarks"
 
 export const BookmarkContextProvider = ({ children }: { children: React.ReactNode }) => {
     const [bookmarks, setBookmarks] = useState<BookmarkPost[]>([])
-    const { token,user } = useAuth();
+    const {token } = useAuth();
     const {setPosts} = usePost();
 
-
-    useEffect(()=>{
-        getAllBookmarks()
-    },[])
  
     const toggleBookmark = async (id: number) => {
         setPosts(prev=>prev.map(b=>b.id == id ? {...b,isBookmark:!b.isBookmark}:b))
@@ -55,7 +51,7 @@ export const BookmarkContextProvider = ({ children }: { children: React.ReactNod
             toast.error(error?.message)
         }
     }
- 
+
     const getAllBookmarks = async()=>{
           try {
             const response = await fetch(`${URL}`,{
@@ -77,6 +73,7 @@ export const BookmarkContextProvider = ({ children }: { children: React.ReactNod
             console.log("data: ",data)
             setBookmarks(data?.data)
             toast.success(data.message)
+            return bookmarks
         } catch (error:any) {
             console.log(error?.message)
             toast.error(error?.message)

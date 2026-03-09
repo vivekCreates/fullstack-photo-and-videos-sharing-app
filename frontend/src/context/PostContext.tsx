@@ -40,6 +40,7 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
     useEffect(() => {
         if (!user) return;
         getPosts();
+        getUserPosts();
     }, [user])
 
     const getPosts = async () => {
@@ -290,6 +291,7 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
             console.log("userPosts: ",data)
             setUserPosts(data?.data)
             toast.success(data?.message)
+            return userPosts
         } catch (error:any) {
             console.log(error?.message)
             toast.error(error?.message)
@@ -298,7 +300,18 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
     }
     
     
-    return <PostContext.Provider value={{ posts,getUserPosts,setPosts,userPosts, createPost, updatePost, deletePost, getPostById, likeOrDislike }}>
+    return <PostContext.Provider value={
+        { 
+            posts,
+            getUserPosts,
+            setPosts,
+            userPosts,
+            createPost, 
+            updatePost, 
+            deletePost, 
+            getPostById, 
+            likeOrDislike 
+            }}>
     {children}
 </PostContext.Provider>
 

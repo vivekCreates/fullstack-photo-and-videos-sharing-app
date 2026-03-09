@@ -1,21 +1,67 @@
-import { useState } from "react";
-import { usePost } from "../context/PostContext";
+import { useEffect, useState } from "react";
 import { useAuth } from "../context/UserContext";
+import toast from "react-hot-toast";
+import type { PostType } from "../types/post";
+import { usePost } from "../context/PostContext";
 
 
 
 function ProfilePage() {
+  const [userPosts, setUserPosts] = useState<PostType[]>([]);
   const [activeTab, setActiveTab] = useState<"posts" | "bookmarks" | "likes">(
     "posts"
   );
-  const {userPosts,getUserPosts} = usePost();
-  const {user} = useAuth();
 
- 
+  const { user, token } = useAuth();
+  const {posts} = usePost();
+
+  const fetchPosts = async (type: "posts" | "bookmarks" | "likes") => {
+    try {
+      let url = "";
+
+      if (type === "posts") {
+        url = `http://localhost:8000/api/posts/current-user`;
+      }
+
+      if (type === "bookmarks") {
+        url = "http://localhost:8000/api/bookmarks";
+      }
+
+      if (type === "likes") {
+        url = "http://localhost:8000/api/likes";
+      }
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch posts");
+      }
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.message || "Something went wrong");
+      }
+      console.log("posts: ",data?.data)
+      setUserPosts(data?.data);
+    } catch (error: any) {
+      console.log(error?.message);
+      toast.error(error?.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts("posts");
+  }, []);
 
   const handleTabChange = (tab: "posts" | "bookmarks" | "likes") => {
     setActiveTab(tab);
-  
+    fetchPosts(tab);
   };
 
   return (
@@ -34,18 +80,13 @@ function ProfilePage() {
             @{user?.name}
           </h1>
 
-          <p className="text-zinc-400 mt-1">{userPosts.length} Posts</p>
+          <p className="text-zinc-400 mt-1">{posts.filter(p=>p.user.id == user?.id).length} Posts</p>
         </div>
 
         {/* Tabs */}
         <div className="flex justify-center gap-10 mt-8 border-b border-zinc-800 pb-4">
           <button
-            onClick={
-              () => {
-                handleTabChange("posts")
-                getUserPosts()
-              }
-            }
+            onClick={() => handleTabChange("posts")}
             className={`pb-2 ${
               activeTab === "posts"
                 ? "border-b-2 border-indigo-500 text-white"
@@ -86,7 +127,7 @@ function ProfilePage() {
               {userPosts.map((post) => (
                 <div
                   key={post.id}
-                  className="bg-zinc-900 border border-zinc-900 rounded-xl overflow-hidden hover:scale-105 transition duration-300 cursor-pointer shadow-lg shadow-black/40"
+                  className="bg-zinc-900 rounded-xl overflow-hidden hover:scale-105 transition duration-300 cursor-pointer shadow-lg shadow-black/40"
                 >
                   <img
                     src={post.file}
