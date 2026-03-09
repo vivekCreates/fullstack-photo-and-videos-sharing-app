@@ -53,11 +53,23 @@ def like_or_dislike(
 @router.get("/")
 def get_all_liked_posts(user=Depends(get_current_user), db: Session = Depends(get_db)):
     try:
-        posts = db.query(Like).filter(Like.user_id == user.id).all()
+        posts = (
+    db.query(Post)
+    .join(Like, Like.post_id == Post.id)
+    .filter(Like.user_id == user.id)
+    .all()
+)
+        result = []
+        for post in posts:
+            result.append({
+                "id":post.id,
+                "title":post.title,
+                "file":post.file
+            })
         return ApiResponse(
             statusCode=200,
             message="Posts fetched successfully",
-            data=posts,
+            data=result,
         ).model_dump()
     except Exception as e:
         db.rollback()

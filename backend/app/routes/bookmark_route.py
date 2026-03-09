@@ -54,7 +54,7 @@ def get_bookmark_posts(user=Depends(get_current_user), db: Session = Depends(get
         result = [
         {
             "id": post.id,
-            "postImage": post.file,
+            "file": post.file,
             "title": post.title
             }
         for post in bookmarked_posts
