@@ -16,11 +16,11 @@ function Navbar() {
         <Link 
           to="/" 
           className="text-2xl tracking-wide 
-                     hover:text-[#8B5CD1] 
+                     hover:text-[#8B5CF6] 
                      transition duration-200 text-[#8B5CF6] font-semibold font-sans"
                      
         >
-          Posty
+          NightFeed
         </Link>
       </div>
 

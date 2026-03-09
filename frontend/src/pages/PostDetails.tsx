@@ -5,52 +5,44 @@ import toast from "react-hot-toast";
 import { useAuth } from "../context/UserContext";
 import { useParams } from "react-router";
 import { convertDate } from "../utils/utility";
-import { Loader } from "lucide-react";
+import { Loader, MessageCircle } from "lucide-react";
 import { useComment } from "../context/CommentContext";
-import CommentItem from "../components/Comment";
 import CommentList from "../components/CommentList";
 
-
 export const PostDetails = () => {
+
   const { id } = useParams();
   const { token } = useAuth();
 
   const [post, setPost] = useState<PostType | null>(null);
   const [loading, setLoading] = useState(true);
   const [showComments, setShowComments] = useState(false);
-  const [comment, setComment] = useState("")
+  const [comment, setComment] = useState("");
   const [isCommentEditable, setIsCommentEditable] = useState(false);
   const [editableCommentId, setEditableCommentId] = useState<number | null>(null);
+  const [parentCommentId, setParentCommentId] = useState<number | null>(null);
 
-  const [parentCommentId, setParentCommentId] = useState<number | null>(null)
-  const { createComment, comments, fetchComment, updateComment } = useComment()
-
+  const { createComment, comments, fetchComment, updateComment } = useComment();
 
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:8000/api/posts/${id}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await fetch(`http://localhost:8000/api/posts/${id}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch post");
-        }
+        if (!response.ok) throw new Error("Failed to fetch post");
 
         const data = await response.json();
 
-        if (!data.success) {
-          throw new Error(data.message || "Something went wrong");
-        }
+        if (!data.success) throw new Error(data.message);
 
         setPost(data.data);
+
       } catch (error: any) {
         toast.error(error.message);
       } finally {
@@ -75,46 +67,53 @@ export const PostDetails = () => {
 
   return (
     <div className="min-h-screen bg-black text-white">
+
       <Navbar />
 
-      <div className="max-w-3xl mx-auto px-4 py-10">
+      <div className="max-w-3xl mx-auto px-4 py-12">
 
-        <div className="bg-zinc-900 rounded-2xl shadow-xl overflow-hidden">
+        <div className="bg-black border border-zinc-800 rounded-2xl overflow-hidden
+        hover:border-zinc-700 transition-all
+        shadow-[0_0_25px_rgba(255,255,255,0.03)]">
 
-          <div className="bg-zinc-800">
+        
+          <div className="overflow-hidden">
             <img
               src={post.file}
               alt="Post"
-              className="w-full max-h-[500px] object-cover"
+              className="w-full max-h-[520px] object-cover hover:scale-105 transition duration-500"
             />
           </div>
 
           <div className="p-8">
 
             <div className="flex items-center gap-3 mb-6">
+
               {post.user.profileImage ? (
                 <img
                   src={post.user.profileImage}
                   alt={post.user.name}
-                  className="w-10 h-10 rounded-full object-cover"
+                  className="w-11 h-11 rounded-full object-cover border border-zinc-700"
                 />
               ) : (
-                <div className="w-10 h-10 rounded-full flex items-center justify-center bg-zinc-700">
+                <div className="w-11 h-11 rounded-full flex items-center justify-center bg-zinc-800 font-semibold">
                   {post.user.name[0].toUpperCase()}
                 </div>
               )}
 
               <div>
-                <h3 className="text-sm font-semibold">
-                  {post.user.name}
+                <h3 className="text-sm font-semibold text-zinc-200">
+                  @{post.user.name}
                 </h3>
                 <p className="text-xs text-zinc-500">
                   {convertDate(post.createdAt)}
                 </p>
               </div>
+
             </div>
 
-            <h1 className="text-3xl font-bold mb-4 leading-tight">
+       
+            <h1 className="text-3xl font-bold mb-4 tracking-wide">
               {post.title}
             </h1>
 
@@ -122,83 +121,105 @@ export const PostDetails = () => {
               {post.description}
             </p>
 
-
-            <div className="flex items-center gap-6 border-t border-zinc-800 pt-4">
-
-              <button
-                onClick={() => {
-                  fetchComment(Number(id))
-                  setShowComments(prev=>!prev)
-                }}
-                className="text-sm text-zinc-400 hover:text-white transition"
-
-              >
-                💬 {showComments ? "Hide Comments" : "View Comments"}
-              </button>
-
-            </div>
+        
+            <button
+              onClick={() => {
+                fetchComment(Number(id));
+                setShowComments(prev => !prev);
+              }}
+              className="flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition"
+            >
+              <MessageCircle size={18} />
+              {showComments ? "Hide Comments" : "View Comments"}
+            </button>
 
           </div>
         </div>
+
         <div
-          className={`transition-all duration-500 ease-in-out overflow-hidden ${showComments ? "max-h-[800px] opacity-100 mt-8" : "max-h-0 opacity-0"
+          className={`transition-all duration-500 overflow-hidden
+          ${showComments
+              ? "max-h-[900px] opacity-100 mt-8"
+              : "max-h-0 opacity-0"
             }`}
         >
-          <div className="bg-zinc-900 rounded-2xl p-6 shadow-lg">
 
+          <div className="bg-black border border-zinc-800 rounded-2xl p-6
+          shadow-[0_0_25px_rgba(255,255,255,0.03)]">
+
+           
             <div className="flex gap-3 mb-6">
+
               <input
                 onChange={(e) => setComment(e.target.value)}
-                type="text"
                 value={comment}
+                type="text"
                 placeholder="Write a comment..."
-                className="flex-1 bg-zinc-800 border border-zinc-700 p-3 rounded-lg focus:outline-none focus:border-zinc-500 transition"
+                className="flex-1 bg-zinc-900 border border-zinc-800
+                p-3 rounded-xl text-sm
+                focus:outline-none focus:border-[#8B5CF6]
+                transition"
               />
-              {
-                isCommentEditable ? (
-                  <button onClick={() => {
-                    
-                    updateComment({ commentId: editableCommentId!, text: comment })
-                    setComment("")
-                    setIsCommentEditable(!isCommentEditable)
-                    setParentCommentId(null)
-                  }
-                  } className="bg-[#8B5CF6] px-4 py-2 rounded-lg hover:bg-zinc-700 transition">
-                    Update
-                  </button>
-                ) :
-                  (
-                    <button onClick={() => {
-                      createComment({ postId: post.id, parentCommentId, text: comment })
-                      setComment("")
-                    }
-                    }
-                      className="bg-[#8B5CF6] px-4 py-2 rounded-lg hover:bg-zinc-700 transition">
-                      Post
-                    </button>
-                  )
 
-              }
+              {isCommentEditable ? (
 
+                <button
+                  onClick={() => {
+                    updateComment({
+                      commentId: editableCommentId!,
+                      text: comment
+                    });
+
+                    setComment("");
+                    setIsCommentEditable(false);
+                    setParentCommentId(null);
+                  }}
+                  className="px-5 py-2 rounded-xl bg-[#8B5CF6]
+                  hover:bg-[#7C3AED] transition"
+                >
+                  Update
+                </button>
+
+              ) : (
+
+                <button
+                  onClick={() => {
+                    createComment({
+                      postId: post.id,
+                      parentCommentId,
+                      text: comment
+                    });
+
+                    setComment("");
+                  }}
+                  className="px-5 py-2 rounded-xl bg-[#8B5CF6]
+                  hover:bg-[#7C3AED] transition"
+                >
+                  Post
+                </button>
+
+              )}
 
             </div>
 
-            {/* Comments List */}
-            <div className="space-y-5 min-h-[80px]">
-               <CommentList
-                  comments={comments}
-                  parentId={null}
-                  commentInput={comment}
-                  isCommentEditable={isCommentEditable}
-                  setCommentInput={setComment}
-                  setIsCommentEditable={setIsCommentEditable}
-                  setEditableCommentId={setEditableCommentId}
-                  setParentCommentId={setParentCommentId}
-                />
+            {/* Comment List */}
+            <div className="space-y-6 min-h-[80px]">
+
+              <CommentList
+                comments={comments}
+                parentId={null}
+                commentInput={comment}
+                isCommentEditable={isCommentEditable}
+                setCommentInput={setComment}
+                setIsCommentEditable={setIsCommentEditable}
+                setEditableCommentId={setEditableCommentId}
+                setParentCommentId={setParentCommentId}
+              />
 
             </div>
 
           </div>
+
         </div>
 
       </div>

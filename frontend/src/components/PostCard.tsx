@@ -15,8 +15,8 @@ type PostCardProps = {
   isBookmark: boolean;
   profileImage: string;
   likeCount: number;
-  commentCount: number
-  userId: number
+  commentCount: number;
+  userId: number;
 };
 
 export const PostCard = ({
@@ -32,8 +32,14 @@ export const PostCard = ({
   profileImage,
   userId
 }: PostCardProps) => {
+
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const { user } = useAuth();
+  const { deletePost, likeOrDislike } = usePost();
+  const { toggleBookmark } = useBookmark();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -42,101 +48,146 @@ export const PostCard = ({
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
   }, []);
-  const { user } = useAuth()
-  const { deletePost, likeOrDislike } = usePost();
-  const {toggleBookmark} = useBookmark();
-  const navigate = useNavigate();
-
-
-
-
-
 
   return (
-    <div className="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition duration-200 relative">
-      <div className="flex items-center justify-between px-3 py-2">
-        <div className="flex items-center gap-2 ">
-          {
-            profileImage ? (<img
+    <div className="group w-full max-w-md bg-black border border-zinc-800 rounded-2xl overflow-hidden
+    hover:border-zinc-600 transition-all duration-300
+    hover:shadow-[0_0_25px_rgba(255,255,255,0.05)] relative">
 
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3">
+
+        <div className="flex items-center gap-3">
+
+          {profileImage ? (
+            <img
               src={profileImage}
               alt={name}
-              className="w-8 h-8 rounded-full object-cover"
-            />)
-              :
-              (
-                <div className="w-8 h-8 rounded-full object-cover flex items-center justify-center bg-[#222222] ">
-                  {name[0].toUpperCase()}
-                </div>
-              )
-          }
+              className="w-9 h-9 rounded-full object-cover border border-zinc-700"
+            />
+          ) : (
+            <div className="w-9 h-9 rounded-full flex items-center justify-center bg-zinc-800 text-sm font-semibold">
+              {name[0].toUpperCase()}
+            </div>
+          )}
 
-          <h3 className="text-sm font-medium text-zinc-200">
+          <h3 className="text-sm font-medium text-zinc-300">
             @{name}
           </h3>
-        </div>
-        {
-          userId == user?.id && (
-            <div className="relative" ref={menuRef}>
-              <button
-                onClick={() => setOpen(!open)}
-                className="p-1.5 rounded-full hover:bg-zinc-800 transition"
-              >
-                <MoreVertical size={18} className="text-zinc-400" />
-              </button>
 
-              {open && (
-                <div className="absolute right-0 mt-1 w-28 bg-zinc-800 border border-zinc-700 rounded-md shadow-lg">
-                  <button onClick={() => navigate(`/edit/${id}`)} className="w-full text-left px-3 py-1.5 text-xs text-zinc-200 hover:bg-zinc-700 rounded-t-md">
-                    Edit
-                  </button>
-                  <button onClick={() => deletePost(id)} className="w-full text-left px-3 py-1.5 text-xs text-red-400 hover:bg-zinc-700 rounded-b-md">
-                    Delete
-                  </button>
-                </div>
-              )}
-            </div>
-          )
-        }
+        </div>
+
+        {userId === user?.id && (
+
+          <div className="relative" ref={menuRef}>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpen(prev => !prev);
+              }}
+              className="p-2 rounded-full hover:bg-zinc-800 transition"
+            >
+              <MoreVertical size={18} className="text-zinc-400" />
+            </button>
+
+            {open && (
+              <div className="absolute right-0 mt-2 w-28 bg-zinc-900 border border-zinc-700 rounded-lg shadow-lg z-50">
+
+                <button
+                  onClick={() => navigate(`/edit/${id}`)}
+                  className="w-full text-left px-3 py-2 text-xs text-zinc-200 hover:bg-zinc-800 rounded-t-lg"
+                >
+                  Edit
+                </button>
+
+                <button
+                  onClick={() => deletePost(id)}
+                  className="w-full text-left px-3 py-2 text-xs text-red-400 hover:bg-zinc-800 rounded-b-lg"
+                >
+                  Delete
+                </button>
+
+              </div>
+            )}
+
+          </div>
+
+        )}
 
       </div>
 
-      <img
-        src={postImage}
-        onClick={() => navigate(`/post/${id}`)}
-        alt="post"
-        className="w-full h-60 object-cover object-center"
-      />
+      {/* Image */}
+      <div className="overflow-hidden">
+        <img
+          src={postImage}
+          onClick={() => navigate(`/post/${id}`)}
+          alt="post"
+          className="w-full h-64 object-cover cursor-pointer
+          group-hover:scale-105 transition-transform duration-500"
+        />
+      </div>
 
-      <div className="px-3 py-3 space-y-1.5">
-        <h2 className="text-base font-semibold text-white">
+      {/* Content */}
+      <div className="px-4 py-4 space-y-3">
+
+        <h2 className="text-lg font-semibold text-white tracking-wide">
           {title}
         </h2>
 
+        {/* Actions */}
         <div className="flex items-center justify-between">
-          <div className="flex gap-2 items-center">
-            <div className="flex gap-2 items-center bg-zinc-700 py-1 px-3 rounded-3xl">
-              <Heart fill={isLiked ? "red" : "none"} size={20} onClick={() => likeOrDislike(id)} />
-              <p>{likeCount}</p>
-            </div>
-            <div className="flex gap-2 items-center bg-zinc-700 py-1 px-2 rounded-3xl">
-              <MessageCircle size={18} />
-              <p>{commentCount}</p>
-            </div>
+
+          <div className="flex gap-3">
+
+            <button
+              onClick={() => likeOrDislike(id)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full
+              bg-zinc-900 border border-zinc-800 hover:border-zinc-600 transition"
+            >
+              <Heart
+                size={18}
+                fill={isLiked ? "red" : "none"}
+                className={isLiked ? "text-red-500" : "text-zinc-300"}
+              />
+              <span className="text-sm text-zinc-300">{likeCount}</span>
+            </button>
+
+            <button
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full
+              bg-zinc-900 border border-zinc-800 hover:border-zinc-600 transition"
+            >
+              <MessageCircle size={18} className="text-zinc-300" />
+              <span className="text-sm text-zinc-300">{commentCount}</span>
+            </button>
+
           </div>
-          <div onClick={() => toggleBookmark(id)} className="flex gap-2 items-center bg-zinc-700 py-1 px-2 rounded-3xl">
-            <Bookmark size={18} fill={isBookmark ? "red" : "none"} />
-          </div>
+
+          <button
+            onClick={() => toggleBookmark(id)}
+            className="p-2 rounded-full bg-zinc-900 border border-zinc-800 hover:border-zinc-600 transition"
+          >
+            <Bookmark
+              size={18}
+              fill={isBookmark ? "red" : "none"}
+              className={isBookmark ? "text-red-500" : "text-zinc-300"}
+            />
+          </button>
 
         </div>
 
-        <p className="text-xs text-zinc-400 leading-snug">
-          {description.slice(0, 100)}
+        <p className="text-sm text-zinc-400 leading-relaxed">
+          {description.slice(0, 120)}
         </p>
+
       </div>
+
     </div>
   );
 };
