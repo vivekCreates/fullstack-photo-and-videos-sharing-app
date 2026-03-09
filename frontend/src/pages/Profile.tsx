@@ -3,6 +3,7 @@ import { useAuth } from "../context/UserContext";
 import toast from "react-hot-toast";
 import type { PostType } from "../types/post";
 import { usePost } from "../context/PostContext";
+import UserPostCard from "../components/UserPostCard";
 
 
 
@@ -125,19 +126,7 @@ function ProfilePage() {
           ) : (
             <div className="grid grid-cols-3 gap-6">
               {userPosts.map((post) => (
-                <div
-                  key={post.id}
-                  className="bg-zinc-900 rounded-xl overflow-hidden hover:scale-105 transition duration-300 cursor-pointer shadow-lg shadow-black/40"
-                >
-                  <img
-                    src={post.file}
-                    alt={post.title}
-                    className="w-full h-48 object-cover"
-                  />
-                  <div className="p-4">
-                    <h3 className="font-medium text-lg">{post.title}</h3>
-                  </div>
-                </div>
+               <UserPostCard key={post.id} post={post}/>
               ))}
             </div>
           )}
