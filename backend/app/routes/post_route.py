@@ -18,7 +18,7 @@ from sqlalchemy import func
 router = APIRouter(prefix="/posts")
 
 
-@router.get("/{userId}/all")
+@router.get("/current-user")
 def get_posts_by_userId(user=Depends(get_current_user), db: Session = Depends(get_db)):
     print("user: ", user)
     current_user_posts = db.query(Post).filter(Post.user_id == user.id).all()

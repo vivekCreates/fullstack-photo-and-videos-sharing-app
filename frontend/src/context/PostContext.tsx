@@ -2,27 +2,31 @@ import { createContext, useContext, useEffect, useState } from "react"
 import type { PostType } from "../types/post"
 import { useAuth } from "./UserContext"
 import toast from "react-hot-toast"
-import type { BookmarkPost } from "../types/bookmark"
+
 
 
 
 type PostContextType = {
     posts: PostType[] | [],
     setPosts:React.Dispatch<React.SetStateAction<PostType[]>>,
+    userPosts:PostType[],
     createPost: (postData: FormData) => {}
     updatePost: (id: number, postData: FormData) => {}
     deletePost: (id: number) => {}
     getPostById: (id: number) => {}
+    getUserPosts:()=>{}
     likeOrDislike: (postId: number) => {}
 }
 
 const PostContext = createContext<PostContextType>({
     posts: [],
+    userPosts:[],
     setPosts:()=>{},
     createPost: async () => { },
     updatePost: async () => { },
     deletePost: async () => { },
     getPostById: async () => { },
+    getUserPosts:async()=>{},
     likeOrDislike: async () => { },
 })
 
@@ -31,7 +35,7 @@ const URL = "http://localhost:8000/api/posts"
 export const PostContextProvider = ({ children }: { children: React.ReactNode }) => {
     const { token, user } = useAuth();
     const [posts, setPosts] = useState<PostType[] | []>([])
-    const [bookmarks, setBookmarks] = useState<BookmarkPost[] | []>([])
+    const [userPosts, setUserPosts] = useState<PostType[] | []>([])
 
     useEffect(() => {
         if (!user) return;
@@ -60,6 +64,7 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
             console.log(data)
             setPosts(data.data)
             toast.success(data.message)
+            
 
         } catch (error: any) {
             toast.error(error.message)
@@ -264,9 +269,36 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
             toast.error(error.message)
         }
     }
+
+    const getUserPosts = async()=>{
+        try {
+            const response = await fetch(`${URL}/current-user`,{
+                method:"GET",
+                headers:{
+                    Authorization:`Bearer ${token}`
+                }
+            })
+            if(!response.ok){
+                throw new Error("Failed to fetch users posts")
+            }
+
+            const data = await response.json();
+
+            if(!data?.success){
+                throw new Error(data?.message||"Something went wrong")
+            }
+            console.log("userPosts: ",data)
+            setUserPosts(data?.data)
+            toast.success(data?.message)
+        } catch (error:any) {
+            console.log(error?.message)
+            toast.error(error?.message)
+
+        }
+    }
     
     
-    return <PostContext.Provider value={{ posts,setPosts, createPost, updatePost, deletePost, getPostById, likeOrDislike }}>
+    return <PostContext.Provider value={{ posts,getUserPosts,setPosts,userPosts, createPost, updatePost, deletePost, getPostById, likeOrDislike }}>
     {children}
 </PostContext.Provider>
 
