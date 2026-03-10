@@ -4,6 +4,7 @@ import { useAuth } from "../context/UserContext";
 import { usePost } from "../context/PostContext";
 import { useNavigate } from "react-router";
 import { useBookmark } from "../context/BookmarkContext";
+import { useLike } from "../context/LikeContext";
 
 type PostCardProps = {
   id: number;
@@ -37,7 +38,8 @@ export const PostCard = ({
   const menuRef = useRef<HTMLDivElement>(null);
 
   const { user } = useAuth();
-  const { deletePost, likeOrDislike } = usePost();
+  const { deletePost } = usePost();
+  const {toggleLike} = useLike()
   const { toggleBookmark } = useBookmark();
   const navigate = useNavigate();
 
@@ -147,7 +149,7 @@ export const PostCard = ({
           <div className="flex gap-3">
 
             <button
-              onClick={() => likeOrDislike(id)}
+              onClick={() => toggleLike(id)}
               className="flex items-center gap-2 px-3 py-1.5 rounded-full
               bg-zinc-900 border border-zinc-800 hover:border-zinc-600 transition"
             >

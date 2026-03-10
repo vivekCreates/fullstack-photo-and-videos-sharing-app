@@ -19,7 +19,6 @@ type PostContextType = {
     deletePost: (id: number) => {}
     getPostById: (id: number) => {}
     getUserPosts: () => {}
-    likeOrDislike: (postId: number) => {}
 }
 
 const PostContext = createContext<PostContextType>({
@@ -33,7 +32,6 @@ const PostContext = createContext<PostContextType>({
     deletePost: async () => { },
     getPostById: async () => { },
     getUserPosts: async () => { },
-    likeOrDislike: async () => { },
 })
 
 
@@ -179,41 +177,6 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
         )
     }
 
-    const likeOrDislike = async (postId: number) => {
-        setPosts(prev => (
-            prev.map(p => (
-                p.id == postId ? { ...p, isLiked: !p.isLiked, likeCount: p.isLiked ? p.likeCount - 1 : p.likeCount + 1 } : p
-            ))
-        ))
-        try {
-            const response = await fetch(`http://localhost:8000/api/likes/${postId}`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`
-                }
-            })
-
-            if (!response.ok) {
-                throw new Error("Failed to Like posts")
-
-            }
-
-            const data = await response.json();
-            if (!data.success) {
-                throw new Error(data.message || "Something went wrong")
-            }
-            toast.success(data.message)
-        } catch (error: any) {
-            setPosts(prev => (
-                prev.map(p => (
-                    p.id == postId ? { ...p, isLiked: !p.isLiked, likeCount: p.isLiked ? p.likeCount - 1 : p.likeCount + 1 } : p
-                ))
-            ))
-            toast.error(error.message)
-        }
-    }
-
     const getUserPosts = async () => {
          
         await requestHandler(
@@ -241,7 +204,6 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
             updatePost,
             deletePost,
             getPostById,
-            likeOrDislike,
             createLoading,
             fetchingLoading
         }}>

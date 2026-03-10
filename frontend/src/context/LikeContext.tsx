@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState } from "react";
 import { usePost } from "./PostContext";
 import { requestHandler } from "../utils/requestHandler";
@@ -40,9 +39,10 @@ export const LikeContextProvider = ({children}:{children:React.ReactNode})=>{
             }
         )
     }
-    <LikeContext.Provider value={{toggleLike,setCreateLoading,createLoading}}>
+    return (<LikeContext.Provider value={{toggleLike,setCreateLoading,createLoading}}>
         {children}
     </LikeContext.Provider>
+    )
 }
 
 export const useLike = ()=>useContext(LikeContext)

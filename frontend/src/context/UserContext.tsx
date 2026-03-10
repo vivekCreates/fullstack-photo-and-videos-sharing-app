@@ -45,12 +45,12 @@ export const UserContextProvider = ({ children }: { children: React.ReactNode })
         const fetchUser = async () => {
             await requestHandler(
                 async ()=> await fetchUserApi(),
-                setFetchingLoading,
+                setLoading,
                 (res)=>{
                     const data = res.data;
                     setUser(data)
                     setIsLoggedIn(true)
-                    setLoading(false)
+                    // setLoading(false)
                     toast.success(res.message)
                 },
                 (error)=>{
