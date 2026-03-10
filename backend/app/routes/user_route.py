@@ -20,9 +20,8 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
         existed_user = db.query(User).filter(User.email == user.email).first()
         if existed_user:
             return ApiResponse(
-                    statusCode=409,
-                    message="User already exists"
-                ).model_dump()
+                statusCode=409, message="User already exists"
+            ).model_dump()
 
         hashed_password = hash_password(user.password)
         new_user = User(
@@ -37,20 +36,15 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
         db.refresh(new_user)
 
         return ApiResponse(
-                statusCode=200,
-                message="User registered successfully",
-                data=user_to_dict(new_user)
-            ).model_dump()
-        
+            statusCode=200,
+            message="User registered successfully",
+            data=user_to_dict(new_user),
+        ).model_dump()
 
     except Exception as e:
         db.rollback()
         print(e)
-        return ApiResponse(
-            statusCode=500,
-            message=str(e)
-        ).model_dump()
-        
+        return ApiResponse(statusCode=500, message=str(e)).model_dump()
 
 
 @router.post("/login")
@@ -59,58 +53,42 @@ def login(user: UserLogin, response: Response, db: Session = Depends(get_db)):
         db_user = db.query(User).filter(User.email == user.email).first()
         if not db_user:
             return ApiResponse(
-                statusCode=400,
-                message="Invalid credentials"
+                statusCode=400, message="Invalid credentials"
             ).model_dump()
-   
+
         if not verify_password(user.password, db_user.password):
             return ApiResponse(
-                statusCode=400,
-                message="Invalid credentials"
+                statusCode=400, message="Invalid credentials"
             ).model_dump()
-        token = create_token({"email": db_user.email,"id":db_user.id})
+        token = create_token({"email": db_user.email, "id": db_user.id})
 
-        
         response.set_cookie(
-        key="token",
-        value=token,
-        httponly=True,
-        max_age=60 * 60 * 24
+            key="token", value=token, httponly=True, max_age=60 * 60 * 24
         )
         return ApiResponse(
-                statusCode=200,
-                message="Login successful",
-                data={"user":user_to_dict(db_user),"token":token}
-            ).model_dump()
+            statusCode=200,
+            message="Login successful",
+            data={"user": user_to_dict(db_user), "token": token},
+        ).model_dump()
     except Exception as e:
         db.rollback()
         print(e)
-        return ApiResponse(
-            statusCode=500,
-            message=str(e)
-        ).model_dump()
-   
+        return ApiResponse(statusCode=500, message=str(e)).model_dump()
 
 
 @router.post("/logout")
 def logout(response: Response):
     try:
         response.delete_cookie(
-        key="token",
-        httponly=True,
-        secure=False,
-    )
-        return ApiResponse(
-            statusCode=200,
-            message="Logout successfully"
-        ).model_dump()
-   
+            key="token",
+            httponly=True,
+            secure=False,
+        )
+        return ApiResponse(statusCode=200, message="Logout successfully").model_dump()
+
     except HTTPException as e:
         print(e)
-        return ApiResponse(
-            statusCode=500,
-            message=str(e)
-        ).model_dump()
+        return ApiResponse(statusCode=500, message=str(e)).model_dump()
 
 
 @router.patch("/upload-avatar")
@@ -124,44 +102,41 @@ async def upload_file(
         response = await upload_file_on_imagekit(file)
         if not response:
             return ApiResponse(
-                statusCode=500,
-                message="File upload failed"
-                ).model_dump()
+                statusCode=500, message="File upload failed"
+            ).model_dump()
         else:
             user.profile_image = response["url"]
             db.commit()
             db.refresh(user)
             return ApiResponse(
-                statusCode=200,
-                message="File upload successfully",
-                data=response["url"]
-                ).model_dump()
-            
+                statusCode=200, message="File upload successfully", data=response["url"]
+            ).model_dump()
+
     except Exception as e:
         db.rollback()
         print(e)
         return ApiResponse(
-                statusCode=500,
-                message=str(e),
-                ).model_dump()
+            statusCode=500,
+            message=str(e),
+        ).model_dump()
 
 
 @router.get("/me")
-def get_logged_in_user(
-    user=Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
+def get_logged_in_user(user=Depends(get_current_user), db: Session = Depends(get_db)):
     print("run getLogged")
     current_user = db.query(User).filter(User.id == user.id).first()
 
     if not current_user:
-        return ApiResponse(
-            statusCode=404,
-            message="User not found"
-        ).model_dump()
+        return ApiResponse(statusCode=404, message="User not found").model_dump()
     return ApiResponse(
-        message= "User fetched successfully",
-        data= current_user,
-        statusCode=200
+        message="User fetched successfully",
+        data={
+            "id": current_user.id,
+            "name": current_user.name,
+            "email":current_user.email ,
+            "profile_image": current_user.profile_image,
+            "created_at": current_user.created_at,
+            "updated_at":current_user.updated_at,
+        },
+        statusCode=200,
     ).model_dump()
-

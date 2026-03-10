@@ -1,6 +1,9 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { User, UserLogin, UserRegister } from "../types/user";
 import toast from "react-hot-toast";
+import { requestHandler } from "../utils/requestHandler";
+import { fetchUserApi, loginUserApi, logOutUserApi, registerUserApi } from "../api/auth";
+
 
 
 type UserContextType = {
@@ -8,6 +11,8 @@ type UserContextType = {
     token: string | null,
     user: User | null,
     loading: boolean,
+    createLoading:boolean,
+    fetchingLoading:boolean;
     register: (user: UserRegister) => void,
     login: (user: UserLogin) => void,
     logout: () => void
@@ -18,49 +23,41 @@ const UserContext = createContext<UserContextType>({
     token: "",
     user: null,
     loading: true,
+    createLoading:false,
+    fetchingLoading:false,
     register: async () => { },
     login: async () => { },
     logout: async () => { },
 })
 
-const URL = "http://localhost:8000/api/auth"
 
 export const UserContextProvider = ({ children }: { children: React.ReactNode }) => {
-
+    
     const [user, setUser] = useState<User | null>(null);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [createLoading,setCreateLoading]= useState(false);
+    const [fetchingLoading,setFetchingLoading]= useState(false);
 
     const [token, setToken] = useState<string | null>(localStorage.getItem("token"))
 
     useEffect(() => {
         const fetchUser = async () => {
-            try {
-                setLoading(true)
-                const resposne = await fetch(`${URL}/me`, {
-                    method: "GET",
-                    credentials: "include",
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                });
-
-                const data = await resposne.json();
-
-
-                if (!data.success) {
-                    toast.error(data.message)
+            await requestHandler(
+                async ()=> await fetchUserApi(),
+                setFetchingLoading,
+                (res)=>{
+                    const data = res.data;
+                    setUser(data)
+                    setIsLoggedIn(true)
+                    setLoading(false)
+                    toast.success(res.message)
+                },
+                (error)=>{
+                    toast.error(error)
                 }
-                setIsLoggedIn(true)
-                setUser(data.data);
-            } catch (error: any) {
-                toast.error(error.message)
-                setUser(null);
-                setToken("")
-            }
-            finally {
-                setLoading(false)
-            }
+
+            )
         };
 
         fetchUser();
@@ -68,78 +65,58 @@ export const UserContextProvider = ({ children }: { children: React.ReactNode })
 
 
     const register = async (user: UserRegister) => {
-        try {
-            const response = await fetch(`${URL}/register`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(user)
-                }
-            )
-
-            const data = await response.json()
-            console.log("data: ", data)
-            if (!data.success) {
-                throw new Error(data.message)
+        await requestHandler(
+            async () => await registerUserApi(user),
+            setCreateLoading,
+            (res)=>{
+                const data = res.data
+                setUser(data)
+                toast.success(res.message)
+            },
+            (error)=>{
+                toast.error(error)
             }
-            toast.success(data.message)
-        } catch (error: any) {
-            toast.error(error.message)
-        }
+        )
     }
+
     const login = async (user: UserLogin) => {
-        try {
-            const response = await fetch(`${URL}/login`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(user)
-                }
-            )
-
-            const data = await response.json()
-            if (!data.success) {
-                throw new Error(data.message)
-            }
-            localStorage.setItem("token", data.data.token)
+       await requestHandler(
+        async ()=> await loginUserApi(user),
+        setCreateLoading,
+        (res)=>{
+            const data = res.data;
+            localStorage.setItem("token",data.token)
+            setUser(data?.user)
+            setToken(data?.token)
             setIsLoggedIn(true)
-            setToken(data.data.token)
-            setUser(data.data.user)
-            toast.success(data.message)
-        } catch (error: any) {
-            toast.error(error.message)
-        }
+            toast.success(res.message)
+        },
+       (error)=>{
+        toast.error(error)
+       }
+    )
     }
+
     const logout = async () => {
-        try {
-            const response = await fetch(`${URL}/logout`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                }
-            )
-            const data = await response.json()
-            if (!data.success) {
-                toast.success(data.message)
-            }
+        await requestHandler(
+        async ()=> await logOutUserApi(),
+        setCreateLoading,
+        (res)=>{
+            const data = res.data;
             localStorage.removeItem("token")
-            setToken("")
+            setUser(data?.user)
+            setToken(data?.token)
             setIsLoggedIn(false)
-            setUser(null);
-            toast.success(data.message)
-        } catch (error: any) {
-            toast.error(error.message)
-        }
+            toast.success(res.message)
+        },
+       (error)=>{
+        toast.error(error)
+       }
+    )
     }
 
 
-    return <UserContext.Provider value={{ register, login, logout, isLoggedIn, user, token, loading }}>
+    return <UserContext.Provider value={{ register, login, logout, isLoggedIn, user, token, loading,createLoading,fetchingLoading }}>
         {children}
     </UserContext.Provider>
 }
