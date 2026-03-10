@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { usePost } from "../context/PostContext";
 import { useNavigate } from "react-router";
+import Loader from "../components/Loader";
 
 export default function CreatePostPage() {
     const [title, setTitle] = useState("");
@@ -8,7 +9,7 @@ export default function CreatePostPage() {
     const [file, setFile] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
 
-    const { createPost } = usePost()
+    const { createPost,createLoading } = usePost()
     const navigate = useNavigate()
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const selected = e.target.files?.[0];
@@ -99,9 +100,13 @@ export default function CreatePostPage() {
                     )}
                     <button
                         type="submit"
+                        disabled={createLoading}
                         className="w-full bg-indigo-600 hover:bg-indigo-700 transition-colors text-white font-medium py-2 rounded-lg"
                     >
-                        Create Post
+                        {
+                            createLoading ? <Loader/> : <p>Create Post</p>
+                        }
+                        
                     </button>
                 </form>
             </div>

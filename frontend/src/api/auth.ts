@@ -4,11 +4,15 @@ import type { UserLogin, UserRegister } from "../types/user";
 
 
 const registerUserApi = async (user: UserRegister) => {
-  return apiClient.post("/auth/register", user);
+  return apiClient.post("/auth/register", user,{
+    headers: { "Content-Type": "application/json" }
+  });
 };
 
 const loginUserApi = async (user: UserLogin) => {
-  return apiClient.post("/auth/login", user);
+  return apiClient.post("/auth/login", user,{
+    headers: { "Content-Type": "application/json" }
+  });
 };
 
 const logOutUserApi = async () => {

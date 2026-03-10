@@ -2,6 +2,8 @@ import { createContext, useContext, useEffect, useState } from "react"
 import type { PostType } from "../types/post"
 import { useAuth } from "./UserContext"
 import toast from "react-hot-toast"
+import { requestHandler } from "../utils/requestHandler"
+import { createPostApi, deletePostApi, getPostByIdApi, getPostsApi, getUserPostsApi, updatePostApi } from "../api/post"
 
 
 
@@ -10,6 +12,8 @@ type PostContextType = {
     posts: PostType[] | [],
     setPosts: React.Dispatch<React.SetStateAction<PostType[]>>,
     userPosts: PostType[],
+    createLoading:boolean,
+    fetchingLoading:boolean,
     createPost: (postData: FormData) => {}
     updatePost: (id: number, postData: FormData) => {}
     deletePost: (id: number) => {}
@@ -21,6 +25,8 @@ type PostContextType = {
 const PostContext = createContext<PostContextType>({
     posts: [],
     userPosts: [],
+    createLoading:false,
+    fetchingLoading:false,
     setPosts: () => { },
     createPost: async () => { },
     updatePost: async () => { },
@@ -30,12 +36,13 @@ const PostContext = createContext<PostContextType>({
     likeOrDislike: async () => { },
 })
 
-const API_URL = "http://localhost:8000/api/posts"
 
 export const PostContextProvider = ({ children }: { children: React.ReactNode }) => {
     const { token, user } = useAuth();
     const [posts, setPosts] = useState<PostType[] | []>([])
     const [userPosts, setUserPosts] = useState<PostType[] | []>([])
+    const [createLoading,setCreateLoading ] = useState(false)
+    const [fetchingLoading,setFetchingLoading ] = useState(false)
 
     useEffect(() => {
         if (!user) return;
@@ -43,32 +50,19 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
         getUserPosts();
     }, [user])
 
-    const getPosts = async () => {
-        try {
-            const response = await fetch(`${API_URL}`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`
-                }
-            })
-
-            if (!response.ok) {
-                throw new Error("Failed to fetch posts")
-
+    const getPosts = async () => { 
+        await requestHandler(
+            async()=>await getPostsApi(),
+            setCreateLoading,
+            (res)=>{
+                const data = res.data;
+                setPosts(data);
+                toast.success(res.message)
+            },
+            (error)=>{
+                toast.error(error)
             }
-
-            const data = await response.json();
-            if (!data.success) {
-                throw new Error(data.message || "Something went wrong")
-            }
-            setPosts(data.data)
-
-
-
-        } catch (error: any) {
-            toast.error(error.message)
-        }
+        )
     }
 
     const createPost = async (postData: FormData) => {
@@ -97,37 +91,23 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
         };
         setPosts((prev) => [...prev, optimisticPost]);
 
-        try {
-            const response = await fetch(`${API_URL}/create`, {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-                body: postData,
-                credentials: "include",
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to create post");
-            }
-
-            const data = await response.json();
-
-            if (!data.success) {
-                throw new Error(data.message || "Something went wrong");
-            }
-
-            setPosts((prev) =>
+        await requestHandler(
+            async()=>await createPostApi(postData),
+            setCreateLoading,
+            (res)=>{
+                const data = res.data;
+                 setPosts((prev) =>
                 prev.map((p) =>
                     p.id === tempId ? data?.data : p
                 )
             );
-            toast.success(data.message)
-        } catch (error: any) {
-            setPosts((prev) => prev.filter((p) => p.id !== tempId));
-            toast.error(error.message)
-            console.error("Create Post Error:", error.message);
-        }
+            toast.success(res.message)
+            },
+            (error)=>{
+                setPosts((prev) => prev.filter((p) => p.id !== tempId));
+                toast.error(error)
+            }
+        )
     };
 
     const updatePost = async (id: number, formData: FormData) => {
@@ -148,29 +128,18 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
             )
         );
 
-        try {
-            const response = await fetch(`${API_URL}/${id}`, {
-                method: "PATCH",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-                body: formData,
-            });
-            console.log(response)
-            if (!response.ok) throw new Error("Failed");
-
-            const data = await response.json();
-
-            if (!data?.success) {
-                throw new Error(data?.message || "Something went wrong")
+        
+        await requestHandler(
+            async()=>await updatePostApi(id,formData),
+            setCreateLoading,
+            (res)=>{
+                toast.success(res.message)
+            },
+            (error)=>{
+                setPosts(previousPosts)
+                toast.error(error)
             }
-            console.log(data)
-            toast.success(data.message)
-        } catch (error: any) {
-            setPosts(previousPosts);
-            toast.error(error.message)
-            console.log(error?.message)
-        }
+        )
     };
 
     const deletePost = async (id: number) => {
@@ -180,57 +149,34 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
             prev.filter(p => (
                 p.id != id
             ))
-        ))
-
-        try {
-            const response = await fetch(`${API_URL}/${id}`, {
-                method: "DELETE",
-                headers: {
-                    Authorization: `Bearer ${token}`
-                },
-                credentials: "include"
-            })
-
-            if (!response.ok) {
-                throw new Error("Failed to delete post")
+        ))  
+        await requestHandler(
+            async()=>await deletePostApi(id),
+            setCreateLoading,
+            (res)=>{
+                toast.success(res.message)
+            },
+            (error)=>{
+                setPosts(previousPosts)
+                toast.error(error)
             }
-
-            const data = await response.json();
-
-            if (!data.success) {
-                throw new Error(data.message || "Something went wrong")
-            }
-            toast.success(data?.message)
-        } catch (error: any) {
-            setPosts(previousPosts)
-            toast.error(error.message)
-            console.log(error.message)
-        }
+        )
     }
 
     const getPostById = async (id: number) => {
-        try {
-            const response = await fetch(`${API_URL}/${id}`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`
-                }
-            })
-
-            if (!response.ok) {
-                throw new Error("Failed to fetch posts")
-
+         
+        await requestHandler(
+            async()=>await getPostByIdApi(id),
+            setCreateLoading,
+            (res)=>{
+                const data = res.data;
+                toast.success(res.message)
+                return data;
+            },
+            (error)=>{
+                toast.error(error)
             }
-
-            const data = await response.json();
-            if (!data.success) {
-                throw new Error(data.message || "Something went wrong")
-            }
-            return data.data
-        } catch (error: any) {
-            toast.error(error.message)
-        }
+        )
     }
 
     const likeOrDislike = async (postId: number) => {
@@ -269,28 +215,19 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
     }
 
     const getUserPosts = async () => {
-        try {
-            const response = await fetch(`${API_URL}/current-user`, {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
-            if (!response.ok) {
-                throw new Error("Failed to fetch users posts")
+         
+        await requestHandler(
+            async()=>await getUserPostsApi(),
+            setCreateLoading,
+            (res)=>{
+                const data =res.data;
+                setUserPosts(data);
+                toast.success(res.message)
+            },
+            (error)=>{
+                toast.error(error)
             }
-
-            const data = await response.json();
-
-            if (!data?.success) {
-                throw new Error(data?.message || "Something went wrong")
-            }
-            setUserPosts(data?.data)
-            return userPosts
-        } catch (error: any) {
-            toast.error(error?.message)
-
-        }
+        )
     }
 
 
@@ -304,7 +241,9 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
             updatePost,
             deletePost,
             getPostById,
-            likeOrDislike
+            likeOrDislike,
+            createLoading,
+            fetchingLoading
         }}>
         {children}
     </PostContext.Provider>
