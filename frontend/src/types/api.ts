@@ -1,4 +1,4 @@
-export type FreeAPISuccessResponseInterface = {
+export type APISuccessResponseInterface = {
     StatusCode:number,
     message:string,
     data:any,
