@@ -1,5 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { useAuth } from "./UserContext";
+import { createContext, useContext, useState } from "react";
 import toast from "react-hot-toast";
 import type { BookmarkPost } from "../types/bookmark";
 import { usePost } from "./PostContext";
@@ -22,11 +21,9 @@ const BookmarkContext = createContext<BookmarkContextType>({
     getAllBookmarks: async () => { }
 })
 
-const URL = "http://localhost:8000/api/bookmarks"
 
 export const BookmarkContextProvider = ({ children }: { children: React.ReactNode }) => {
     const [bookmarks, setBookmarks] = useState<BookmarkPost[]>([])
-    const {token } = useAuth();
     const {setPosts} = usePost();
     const [createLoading,setCreateLoading] = useState(false);
  

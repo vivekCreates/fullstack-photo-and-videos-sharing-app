@@ -205,7 +205,8 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
             deletePost,
             getPostById,
             createLoading,
-            fetchingLoading
+            fetchingLoading,
+            
         }}>
         {children}
     </PostContext.Provider>
