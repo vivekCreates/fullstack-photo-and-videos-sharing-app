@@ -2,8 +2,10 @@ import { createContext, useContext, useState } from "react";
 import { useAuth } from "./UserContext";
 import type { CommentType } from "../types/comment";
 import toast from "react-hot-toast";
+import { requestHandler } from "../utils/requestHandler";
+import { createCommentApi, deleteCommentApi, fetchCommentApi, updateCommentApi } from "../api/comment";
 
-type CreateComment = {
+export type CreateComment = {
     text: string,
     parentCommentId: number | null,
     postId: number
@@ -12,6 +14,8 @@ type CreateComment = {
 
 type CommentContextType = {
     comments: CommentType[] | [],
+    createLoading:boolean,
+    setCreateLoading:(loading:boolean)=> void;
     createComment: (commentData: CreateComment) => void;
     deleteComment: (commentId: number) => void;
     updateComment: ({ commentId, text }: { commentId: number, text: string }) => void;
@@ -21,17 +25,19 @@ type CommentContextType = {
 
 const CommentContext = createContext<CommentContextType>({
     comments: [],
+    createLoading:false,
+    setCreateLoading:()=>{},
     createComment: async () => { },
     deleteComment: async () => { },
     updateComment: async () => { },
     fetchComment: async () => { }
 })
 
-const URL = "http://localhost:8000/api/comments"
 
 export const CommentContextProvider = ({ children }: { children: React.ReactNode }) => {
 
-    const [comments, setComments] = useState<CommentType[]>([])
+    const [comments, setComments] = useState<CommentType[]>([]);
+    const [createLoading,setCreateLoading] = useState(false);
     const { user, token } = useAuth();
 
 
@@ -57,63 +63,34 @@ export const CommentContextProvider = ({ children }: { children: React.ReactNode
         };
         
         setComments(prev => [newComment, ...prev]);
-        console.log("comments: ",comments)
-        try {
-            const response = await fetch(`${URL}/posts/${postId}`,
-                {
-                    method: "POST",
-                    body: JSON.stringify({
-                        text: text,
-                        parent_comment_id: parentCommentId
-                    }),
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`
-                    },
-                    credentials:"include"
-                }
-            )
-            if (!response.ok) {
-                throw new Error("Failed to create comment")
+        await requestHandler(
+            async ()=> await createCommentApi({postId,text,parentCommentId}),
+            setCreateLoading,
+            (res)=>{
+                const data = res.data;
+                setComments(prev => prev.map(c => c.id == tempId ? data.data : c))
+                toast.success(res.message)
+            },
+            (error)=>{
+                toast.error(error)
             }
-
-            const data = await response.json();
-
-            if (!data.success) {
-                throw new Error(data?.message || "Something went wrong")
-            }
-          
-            setComments(prev => prev.map(c => c.id == tempId ? data.data : c))
-            toast.success(data.message)
-        } catch (error: any) {
-            toast.error(error?.message)
-        }
+        )
     };
 
     const deleteComment = async (commentId: number) => {
         const prevComments = comments;
         setComments(prev => prev.filter(c => c.id != commentId))
-        try {
-            const response = await fetch(`${URL}/${commentId}`,{
-                method:"DELETE",
-                headers:{
-                    "Content-Type":"application/json",
-                    "Authorization":`Bearer ${token}`
-                }
-            })
-            if (!response.ok) {
-                throw new Error("Failed to delete comment")
+         await requestHandler(
+            async ()=> await deleteCommentApi(commentId),
+            setCreateLoading,
+            (res)=>{
+                toast.success(res.message)
+            },
+            (error)=>{
+                setComments(prevComments)
+                toast.error(error)
             }
-            const data = await response.json()
-
-            if (!data.success) {
-                throw new Error(data?.message || "Something went wrong")
-            }
-            toast.success(data.message)
-        } catch (error: any) {
-            setComments(prevComments)
-            toast.error(error?.message)
-        }
+        )
     };
 
 
@@ -121,59 +98,38 @@ export const CommentContextProvider = ({ children }: { children: React.ReactNode
         const prevComment = comments.find(c=>c.id ==commentId);
 
         setComments(prev=>prev.map(c=>c.id == commentId ? {...c,text}:c))
-        try {
-            const response = await fetch(`${URL}/${commentId}`,{
-                method:"PATCH",
-                headers:{
-                    "Content-Type":"application/json",
-                    "Authorization":`Bearer ${token}`
-                },
-                body:JSON.stringify({text})
-            })
 
-            if (!response.ok){
-                throw new Error("Failed to Update Comment")
+         await requestHandler(
+            async ()=> await updateCommentApi({text,commentId}),
+            setCreateLoading,
+            (res)=>{
+                toast.success(res.message)
+            },
+            (error)=>{
+                setComments(prev=>prev.map(c=>c.id == commentId ? prevComment!:c))
+                toast.error(error)
             }
-
-            const data  = await response.json();
-            if (!data.success){
-                throw new Error(data?.message||"Something went wrong")
-            }
-
-            toast.success(data?.message)
-
-        } catch (error:any) {
-            setComments(prev=>prev.map(c=>c.id == commentId ? prevComment!:c))
-            toast.error(error?.message)
-        }
+        )
     }
-    const fetchComment = async(postId:number) => {
-        try {
-            const response = await fetch(`${URL}/posts/${postId}`,{
-                method:"GET",
-                headers:{
-                   "Content-Type":"application/json",
-                   "Authorization":`Bearer ${token}` 
-                }
-            })
-            if (!response.ok){
-                throw new Error("Failed to fetch Comments")
-            }
 
-            const data  = await response.json();
-            if (!data.success){
-                throw new Error(data?.message||"Something went wrong")
+
+    const fetchComment = async(postId:number) => {
+       await requestHandler(
+            async ()=> await fetchCommentApi(postId),
+            setCreateLoading,
+            (res)=>{
+                const data = res.data;
+                setComments(data)
+                toast.success(res.message)
+            },
+            (error)=>{
+                toast.error(error)
             }
-            toast.success(data?.message)
-            setComments(data.data)
-            console.log(data)
-        } catch (error:any) {
-            toast.error(error.message)
-        }
+        )
     }
 
     return (
-        <CommentContext.Provider value={{ comments, createComment, deleteComment, updateComment, fetchComment }}>
+        <CommentContext.Provider value={{ comments, createComment, deleteComment, updateComment, fetchComment,createLoading,setCreateLoading }}>
             {children}
         </CommentContext.Provider>
     )

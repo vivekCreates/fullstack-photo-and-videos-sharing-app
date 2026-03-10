@@ -1,9 +1,10 @@
 import { apiClient } from "."
+import type { CreateComment } from "../context/CommentContext"
 import type { CommentType } from "../types/comment"
 
 
-const createCommentApi = ({ postId, text, parentCommentId }:CommentType)=>{
-    return apiClient.post(`/comments/posts/${postId}`,{postId,text})
+const createCommentApi = ({ postId, text, parentCommentId }:CreateComment)=>{
+    return apiClient.post(`/comments/posts/${postId}`,{parentCommentId,text})
 }
 
 
@@ -13,7 +14,7 @@ const deleteCommentApi = (commentId:number)=>{
 }
 
 const updateCommentApi = ({text,commentId}:{text:string,commentId:number})=>{
-    apiClient.patch(`/comments/${commentId}`,{text})
+    return apiClient.patch(`/comments/${commentId}`,{text})
 }
 
 
