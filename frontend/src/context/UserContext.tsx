@@ -10,6 +10,7 @@ type UserContextType = {
     isLoggedIn: boolean,
     token: string | null,
     user: User | null,
+    setUser:React.Dispatch<React.SetStateAction<User|null>>,
     loading: boolean,
     createLoading:boolean,
     fetchingLoading:boolean;
@@ -22,6 +23,7 @@ const UserContext = createContext<UserContextType>({
     isLoggedIn: false,
     token: "",
     user: null,
+    setUser:()=>{},
     loading: true,
     createLoading:false,
     fetchingLoading:false,
@@ -116,7 +118,7 @@ export const UserContextProvider = ({ children }: { children: React.ReactNode })
     }
 
 
-    return <UserContext.Provider value={{ register, login, logout, isLoggedIn, user, token, loading,createLoading,fetchingLoading }}>
+    return <UserContext.Provider value={{ register, login, logout, isLoggedIn, user,setUser, token, loading,createLoading,fetchingLoading }}>
         {children}
     </UserContext.Provider>
 }

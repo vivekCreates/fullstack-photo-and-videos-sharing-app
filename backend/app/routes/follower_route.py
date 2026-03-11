@@ -59,8 +59,9 @@ def get_all_followings(user=Depends(get_current_user), db: Session = Depends(get
         for follower, followed_user in all_followers:
             res.append(
                 {
-                    "id": follower.id,
-                    "userId": followed_user.id,
+                    "id":follower.id,
+                    "FollowedBy": user.id,
+                    "followedTo": followed_user.id,
                     "name": followed_user.name,
                     "profileImage": followed_user.profile_image,
                 }

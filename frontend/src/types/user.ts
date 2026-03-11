@@ -2,9 +2,11 @@ export type User ={
     id:number,
     name:string,
     email:string,
-    profile_image:String
+    profile_image:string
+    followersCount:number,
+    followingCount:number
     created_at:Date,
-    update_at:Date
+    update_at:Date,
 
 }
 

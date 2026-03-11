@@ -5,6 +5,7 @@ import { requestHandler } from "../utils/requestHandler";
 import { getAllFollwingsApi, toggleFollowerApi } from "../api/follower";
 import toast from "react-hot-toast";
 import { useAuth } from "./UserContext";
+import type { User } from "../types/user";
 
 type FollowerContextType = {
 
@@ -30,55 +31,60 @@ export const FollowerContextProvider = ({ children }: { children: React.ReactNod
     const [followers, setFollowers] = useState<FollowType[]>([])
     const [followings, setFollowings] = useState<FollowType[]>([])
     const [createLoading, setCreateLoading] = useState(false)
-    const { setPosts } = usePost();
-    const { user} = useAuth()
+    const { setPosts, posts } = usePost();
+    const { user, setUser } = useAuth()
 
-    useEffect(()=>{
+    useEffect(() => {
         getAllFollowings()
-    },[])
+    }, [])
 
-    const toggleFollower = async (userId: number
-    ) => {
-        setPosts(prev =>
-            prev.map(p =>
-                p.user.id === userId
-                    ? { ...p, user: { ...p.user, isFollowed: !p.user.isFollowed } }
-                    : p
-            )
-        );
+    const toggleFollower = async (userId: number) => {
 
-        const tempId = Date.now()
+    const post = posts.find(p => p.user.id === userId)
+    const wasFollowed = post?.user.isFollowed
 
-        // const follow = {
-        //     id:tempId,
-        //     profileImage:String(user?.profile_image!),
-        //     name:user?.name!,
-        //     userId:user?.id!
-        // }
-
-        // setFollowings(prev=>([follow,...prev]))
-        await requestHandler(
-            async () => await toggleFollowerApi(userId),
-            setCreateLoading,
-            (res) => {
-                const data = res.data;
-                // setFollowings(prev=>prev.map(f=>f.id ==tempId ? data :f))
-                toast.success(res.message)
-            },
-            (error) => {
-                setPosts(prev =>
-                    prev.map(p =>
-                        p.user.id === userId
-                            ? { ...p, user: { ...p.user, isFollowed: !p.user.isFollowed } }
-                            : p
-                    )
-                );
-                // setFollowings(prev=>prev.filter(f=>f.id != tempId))
-                toast.error(error)
-            }
+    // optimistic UI update
+    setPosts(prev =>
+        prev.map(p =>
+            p.user.id === userId
+                ? { ...p, user: { ...p.user, isFollowed: !p.user.isFollowed } }
+                : p
         )
+    )
+
+    setUser((prev) => {
+    if (!prev) return prev
+
+    return {
+        ...prev,
+        followingCount: wasFollowed
+            ? prev.followingCount - 1
+            : prev.followingCount + 1
     }
-    const getAllFollowings = async ()=>{
+})
+
+    await requestHandler(
+        async () => await toggleFollowerApi(userId),
+        setCreateLoading,
+        () => {
+            toast.success("Follow updated")
+        },
+        (error) => {
+
+            // rollback
+            setPosts(prev =>
+                prev.map(p =>
+                    p.user.id === userId
+                        ? { ...p, user: { ...p.user, isFollowed: !p.user.isFollowed } }
+                        : p
+                )
+            )
+
+            toast.error(error)
+        }
+    )
+}
+    const getAllFollowings = async () => {
 
         await requestHandler(
             async () => await getAllFollwingsApi(),
@@ -94,7 +100,7 @@ export const FollowerContextProvider = ({ children }: { children: React.ReactNod
     }
 
     return (
-        <FollowerContext.Provider value={{followers,followings,createLoading,setCreateLoading,toggleFollower,getAllFollowings}}>
+        <FollowerContext.Provider value={{ followers, followings, createLoading, setCreateLoading, toggleFollower, getAllFollowings }}>
             {children}
         </FollowerContext.Provider>
     )

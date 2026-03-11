@@ -1,13 +1,27 @@
-import Navbar from '../components/Navbar'
-import PostSection from '../components/PostSection'
+import Navbar from "../components/Navbar";
+import PostSection from "../components/PostSection";
 
 function Home() {
   return (
-    <div className='w-full flex flex-col gap-20 items-center'>
-      <Navbar/>
-      <PostSection/>
+    <div className="min-h-screen w-full bg-black text-white">
+
+      <Navbar />
+
+      <div
+        className="
+        w-full
+        max-w-6xl
+        mx-auto
+        px-4 sm:px-6
+        pt-20
+        pb-10
+      "
+      >
+        <PostSection />
+      </div>
+
     </div>
-  )
+  );
 }
 
-export default Home
+export default Home;

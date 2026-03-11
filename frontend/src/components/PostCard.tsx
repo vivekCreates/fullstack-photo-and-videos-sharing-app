@@ -19,8 +19,8 @@ type PostCardProps = {
   likeCount: number;
   commentCount: number;
   userId: number;
-  isFollowed: boolean,
-  isOwner: boolean
+  isFollowed: boolean;
+  isOwner: boolean;
 };
 
 export const PostCard = ({
@@ -36,7 +36,7 @@ export const PostCard = ({
   profileImage,
   userId,
   isFollowed,
-  isOwner
+  isOwner,
 }: PostCardProps) => {
 
   const [open, setOpen] = useState(false);
@@ -44,8 +44,8 @@ export const PostCard = ({
 
   const { user } = useAuth();
   const { deletePost } = usePost();
-  const { toggleLike } = useLike()
-  const { toggleFollower } = useFollower()
+  const { toggleLike } = useLike();
+  const { toggleFollower } = useFollower();
   const { toggleBookmark } = useBookmark();
   const navigate = useNavigate();
 
@@ -57,54 +57,52 @@ export const PostCard = ({
     };
 
     document.addEventListener("click", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
-    };
+    return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
   return (
-    <div className="group w-full max-w-md bg-black border border-zinc-800 rounded-2xl overflow-hidden
-    hover:border-zinc-600 transition-all duration-300
-    hover:shadow-[0_0_25px_rgba(255,255,255,0.05)] relative">
+    <div
+      className="group w-full bg-black border border-neutral-800 rounded-xl sm:rounded-2xl overflow-hidden
+      hover:border-neutral-600 transition-all duration-300
+      hover:shadow-[0_0_20px_rgba(255,255,255,0.05)] relative"
+    >
 
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3">
+      <div className="flex items-center justify-between px-3 sm:px-4 py-3">
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
 
           {profileImage ? (
             <img
               src={profileImage}
               alt={name}
-              className="w-9 h-9 rounded-full object-cover border border-zinc-700"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover border border-neutral-700"
             />
           ) : (
-            <div className="w-9 h-9 rounded-full flex items-center justify-center bg-zinc-800 text-sm font-semibold">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center bg-neutral-800 text-xs sm:text-sm font-semibold">
               {name[0].toUpperCase()}
             </div>
           )}
 
-          <h3 className="text-sm font-medium text-zinc-300">
+          <h3 className="text-xs sm:text-sm font-medium text-neutral-300">
             @{name}
           </h3>
 
         </div>
+
         <div className="flex gap-2 items-center">
-          {
-            !isOwner && (
-              <button
-                onClick={() => toggleFollower(userId)}
-                className={`px-4 py-1.5 text-sm font-medium rounded-full transition-all duration-200
-  ${isFollowed
-                    ? "bg-neutral-800 text-gray-300 hover:bg-neutral-700"
-                    : "bg-white text-black hover:bg-gray-200"
-                  }`}
-              >
-                {isFollowed ? "Following" : "Follow"}
-              </button>
-            )
-          }
+
+          {!isOwner && (
+            <button
+              onClick={() => toggleFollower(userId)}
+              className={`px-3 sm:px-4 py-1 text-xs sm:text-sm font-medium rounded-full transition
+                ${isFollowed
+                  ? "bg-neutral-900 text-neutral-300"
+                  : "bg-white text-black hover:bg-neutral-200"
+                }`}
+            >
+              {isFollowed ? "Following" : "Follow"}
+            </button>
+          )}
 
           {userId === user?.id && (
 
@@ -113,26 +111,26 @@ export const PostCard = ({
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  setOpen(prev => !prev);
+                  setOpen((prev) => !prev);
                 }}
-                className="p-2 rounded-full hover:bg-zinc-800 transition"
+                className="p-2 rounded-full hover:bg-neutral-800 transition"
               >
-                <MoreVertical size={18} className="text-zinc-400" />
+                <MoreVertical size={18} className="text-neutral-400" />
               </button>
 
               {open && (
-                <div className="absolute right-0 mt-2 w-28 bg-zinc-900 border border-zinc-700 rounded-lg shadow-lg z-50">
+                <div className="absolute right-0 mt-2 w-28 bg-neutral-900 border border-neutral-700 rounded-lg shadow-lg z-50">
 
                   <button
                     onClick={() => navigate(`/edit/${id}`)}
-                    className="w-full text-left px-3 py-2 text-xs text-zinc-200 hover:bg-zinc-800 rounded-t-lg"
+                    className="w-full text-left px-3 py-2 text-xs text-neutral-200 hover:bg-neutral-800 rounded-t-lg"
                   >
                     Edit
                   </button>
 
                   <button
                     onClick={() => deletePost(id)}
-                    className="w-full text-left px-3 py-2 text-xs text-red-400 hover:bg-zinc-800 rounded-b-lg"
+                    className="w-full text-left px-3 py-2 text-xs text-red-400 hover:bg-neutral-800 rounded-b-lg"
                   >
                     Delete
                   </button>
@@ -141,77 +139,78 @@ export const PostCard = ({
               )}
 
             </div>
-
           )}
-        </div>
 
+        </div>
       </div>
 
-      {/* Image */}
       <div className="overflow-hidden">
         <img
           src={postImage}
           onClick={() => navigate(`/post/${id}`)}
           alt="post"
-          className="w-full h-64 object-cover cursor-pointer
+          className="w-full h-48 sm:h-56 md:h-64 object-cover cursor-pointer
           group-hover:scale-105 transition-transform duration-500"
         />
       </div>
 
-      {/* Content */}
-      <div className="px-4 py-4 space-y-3">
+      <div className="px-3 sm:px-4 py-4 space-y-3">
 
-        <h2 className="text-lg font-semibold text-white tracking-wide">
+        <h2 className="text-base sm:text-lg font-semibold text-white">
           {title}
         </h2>
 
-        {/* Actions */}
+
         <div className="flex items-center justify-between">
 
-          <div className="flex gap-3">
+          <div className="flex gap-2 sm:gap-3">
 
             <button
               onClick={() => toggleLike(id)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full
-              bg-zinc-900 border border-zinc-800 hover:border-zinc-600 transition"
+              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 rounded-full
+              bg-neutral-900 border border-neutral-800 hover:border-neutral-600 transition"
             >
               <Heart
                 size={18}
                 fill={isLiked ? "red" : "none"}
-                className={isLiked ? "text-red-500" : "text-zinc-300"}
+                className={isLiked ? "text-red-500" : "text-neutral-300"}
               />
-              <span className="text-sm text-zinc-300">{likeCount}</span>
+              <span className="text-xs sm:text-sm text-neutral-300">
+                {likeCount}
+              </span>
             </button>
 
             <button
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full
-              bg-zinc-900 border border-zinc-800 hover:border-zinc-600 transition"
+              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 rounded-full
+              bg-neutral-900 border border-neutral-800 hover:border-neutral-600 transition"
             >
-              <MessageCircle size={18} className="text-zinc-300" />
-              <span className="text-sm text-zinc-300">{commentCount}</span>
+              <MessageCircle size={18} className="text-neutral-300" />
+              <span className="text-xs sm:text-sm text-neutral-300">
+                {commentCount}
+              </span>
             </button>
 
           </div>
 
           <button
             onClick={() => toggleBookmark(id)}
-            className="p-2 rounded-full bg-zinc-900 border border-zinc-800 hover:border-zinc-600 transition"
+            className="p-2 rounded-full bg-neutral-900 border border-neutral-800 hover:border-neutral-600 transition"
           >
             <Bookmark
               size={18}
               fill={isBookmark ? "red" : "none"}
-              className={isBookmark ? "text-red-500" : "text-zinc-300"}
+              className={isBookmark ? "text-red-500" : "text-neutral-300"}
             />
           </button>
 
         </div>
 
-        <p className="text-sm text-zinc-400 leading-relaxed">
+
+        <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed">
           {description.slice(0, 120)}
         </p>
 
       </div>
-
     </div>
   );
 };

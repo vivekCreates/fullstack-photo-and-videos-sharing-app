@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, UploadFile, File
 from app.schemas.user_schema import UserCreate, UserLogin
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from app.db.session import get_db
 from app.models.user_model import User
 from app.utils.hash_password import hash_password, verify_password
@@ -9,6 +10,7 @@ from app.utils.imagekit import upload_file_on_imagekit
 from app.deps.auth_dep import get_current_user
 from app.schemas.response_schema import ApiResponse
 from fastapi.responses import JSONResponse
+from app.models.followers_model import Follower 
 from app.utils.convert_in_dict import user_to_dict
 
 router = APIRouter(prefix="/auth")
@@ -120,23 +122,40 @@ async def upload_file(
             message=str(e),
         ).model_dump()
 
-
 @router.get("/me")
 def get_logged_in_user(user=Depends(get_current_user), db: Session = Depends(get_db)):
     print("run getLogged")
+
     current_user = db.query(User).filter(User.id == user.id).first()
 
     if not current_user:
         return ApiResponse(statusCode=404, message="User not found").model_dump()
+
+    followers_count = (
+        db.query(func.count(Follower.id))
+        .filter(Follower.follow_to == user.id)
+        .scalar()
+    )
+
+    following_count = (
+        db.query(func.count(Follower.id))
+        .filter(Follower.follow_by == user.id)
+        .scalar()
+    )
+
     return ApiResponse(
         message="User fetched successfully",
         data={
             "id": current_user.id,
             "name": current_user.name,
-            "email":current_user.email ,
+            "email": current_user.email,
+
             "profile_image": current_user.profile_image,
             "created_at": current_user.created_at,
-            "updated_at":current_user.updated_at,
+            "updated_at": current_user.updated_at,
+
+            "followersCount": followers_count,
+            "followingCount": following_count,
         },
         statusCode=200,
     ).model_dump()

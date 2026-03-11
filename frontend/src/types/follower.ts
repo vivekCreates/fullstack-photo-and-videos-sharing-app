@@ -2,5 +2,6 @@ export type FollowType = {
     id:number,
     name:string,
     profileImage:string,
-    userId:number
+    FollowedBy:number
+    FollowedTo:number
 }
