@@ -43,30 +43,30 @@ def create_follower(
 
 
 @router.get("/")
-def get_all_followers(user=Depends(get_current_user),db:Session=Depends(get_db)):
+def get_all_followers(user=Depends(get_current_user), db: Session = Depends(get_db)):
     try:
         all_followers = (
-        db.query(Follower, User)
-        .join(User, Follower.follow_to == User.id)
-        .filter(Follower.follow_by == user.id)
-        .all()
-    )
+            db.query(Follower, User)
+            .join(User, Follower.follow_to == User.id)
+            .filter(Follower.follow_by == user.id)
+            .all()
+        )
 
         res = []
 
         for follower, followed_user in all_followers:
-            res.append({
-                "id":follower.id,
-            "user_id": followed_user.id,
-            "name": followed_user.name,
-            "profileImage": followed_user.profile_image
-        })
+            res.append(
+                {
+                    "id": follower.id,
+                    "userId": followed_user.id,
+                    "name": followed_user.name,
+                    "profileImage": followed_user.profile_image,
+                }
+            )
         return ApiResponse(
-            statusCode=200,
-            message="Followers fetch successfully",
-            data=res
+            statusCode=200, message="Followers fetch successfully", data=res
         ).model_dump()
-        
+
     except HTTPException as e:
         db.rollback()
         print(str(e))
@@ -74,5 +74,3 @@ def get_all_followers(user=Depends(get_current_user),db:Session=Depends(get_db))
             statusCode=500,
             message=str(e),
         )
-        
-        
