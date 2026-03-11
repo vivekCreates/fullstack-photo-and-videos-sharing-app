@@ -121,7 +121,6 @@ def get_one_post(
     except Exception as e:
         return ApiResponse(message=str(e), statusCode=500).model_dump()
 
-
 @router.get("/")
 def get_posts(user=Depends(get_current_user), db: Session = Depends(get_db)):
     try:
@@ -189,6 +188,9 @@ def get_posts(user=Depends(get_current_user), db: Session = Depends(get_db)):
             like_count,
             comment_count,
         ) in posts:
+
+            is_owner = post_user.id == user.id
+
             result.append(
                 {
                     "id": post.id,
@@ -197,28 +199,35 @@ def get_posts(user=Depends(get_current_user), db: Session = Depends(get_db)):
                     "file": post.file,
                     "createdAt": post.created_at,
                     "updatedAt": post.updated_at,
+
                     "isLiked": is_liked_value,
                     "isBookmark": is_bookmark_value,
                     "likeCount": like_count,
                     "commentCount": comment_count,
+
+                    "isOwner": is_owner,
+
                     "user": {
-                       "isFollowed": is_followed_value,
                         "id": post_user.id,
                         "name": post_user.name,
                         "profileImage": post_user.profile_image,
+                        "isFollowed": False if is_owner else is_followed_value,
                     },
                 }
             )
 
         return ApiResponse(
-            message="Posts fetched successfully", data=result, statusCode=200
+            message="Posts fetched successfully",
+            data=result,
+            statusCode=200
         ).model_dump()
 
     except Exception as e:
         db.rollback()
         return ApiResponse(message=str(e), statusCode=500).model_dump()
-
-@router.patch("/{id}")
+    
+    
+    
 async def update_post(
     id: int,
     title: str = Form(...),

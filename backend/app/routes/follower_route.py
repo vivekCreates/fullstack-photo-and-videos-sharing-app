@@ -25,6 +25,8 @@ def create_follower(
 
             return ApiResponse(statusCode=200, message="Unfollow successfully")
         else:
+            if(user_id==user.id):
+                return ApiResponse(statusCode=400, message="You cannnot follow yourself") 
             follower = Follower(follow_to=user_id, follow_by=user.id)
 
             db.add(follower)

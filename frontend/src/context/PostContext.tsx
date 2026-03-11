@@ -77,6 +77,7 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
             file: file ? URL.createObjectURL(file) : "",
             isLiked: false,
             isBookmark: false,
+            isOwner:true,
             commentCount: 0,
             likeCount: 0,
             createdAt: now,
