@@ -39,3 +39,27 @@ def create_follower(
             statusCode=500,
             message=str(e),
         )
+
+
+@router.get("/")
+def get_all_followers(user=Depends(get_current_user),db:Session=Depends(get_db)):
+    try:
+        all_followers = db.query(Follower).filter(
+            Follower.follow_by==user.id
+        ).all()
+        
+        return ApiResponse(
+            statusCode=200,
+            message="Followers fetch successfully",
+            data=all_followers
+        ).model_dump()
+        
+    except HTTPException as e:
+        db.rollback()
+        print(str(e))
+        return ApiResponse(
+            statusCode=500,
+            message=str(e),
+        )
+        
+        
