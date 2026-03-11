@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.deps.auth_dep import get_current_user
 from app.db.session import get_db
 from app.models.followers_model import Follower
+from app.models.user_model import User
 from app.schemas.response_schema import ApiResponse
 
 
@@ -44,14 +45,26 @@ def create_follower(
 @router.get("/")
 def get_all_followers(user=Depends(get_current_user),db:Session=Depends(get_db)):
     try:
-        all_followers = db.query(Follower).filter(
-            Follower.follow_by==user.id
-        ).all()
-        
+        all_followers = (
+        db.query(Follower, User)
+        .join(User, Follower.follow_to == User.id)
+        .filter(Follower.follow_by == user.id)
+        .all()
+    )
+
+        res = []
+
+        for follower, followed_user in all_followers:
+            res.append({
+                "id":follower.id,
+            "user_id": followed_user.id,
+            "name": followed_user.name,
+            "profileImage": followed_user.profile_image
+        })
         return ApiResponse(
             statusCode=200,
             message="Followers fetch successfully",
-            data=all_followers
+            data=res
         ).model_dump()
         
     except HTTPException as e:
