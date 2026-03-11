@@ -11,6 +11,7 @@ export type PostType = {
     commentCount:number,
     user:{
         id:number,
+        isFollowed:boolean,
         name:string,
         profileImage:string
     }

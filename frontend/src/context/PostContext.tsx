@@ -83,6 +83,7 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
             updateAt: now,
             user: {
                 id: user.id,
+                isFollowed:false,
                 name: user.name,
                 profileImage: String(user.profile_image)
             }
