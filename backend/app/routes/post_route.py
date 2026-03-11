@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.models.post_model import Post
 from app.models.user_model import User
 from app.models.like_model import Like
+from app.models.followers_model import Follower
 from app.models.bookmark_model import Bookmark
 from app.models.comment_model import Comment
 from app.deps.auth_dep import get_current_user
@@ -151,12 +152,23 @@ def get_posts(user=Depends(get_current_user), db: Session = Depends(get_db)):
             .exists()
         )
 
+        is_followed = (
+            db.query(Follower.id)
+            .filter(
+                Follower.follow_by == user.id,
+                Follower.follow_to == Post.user_id
+            )
+            .correlate(Post)
+            .exists()
+        )
+
         posts = (
             db.query(
                 Post,
                 User,
                 is_liked.label("isLiked"),
                 is_bookmark.label("isBookmark"),
+                is_followed.label("isFollowed"),
                 func.coalesce(like_count_subq.c.likeCount, 0),
                 func.coalesce(comment_count_subq.c.commentCount, 0),
             )
@@ -173,6 +185,7 @@ def get_posts(user=Depends(get_current_user), db: Session = Depends(get_db)):
             post_user,
             is_liked_value,
             is_bookmark_value,
+            is_followed_value,
             like_count,
             comment_count,
         ) in posts:
@@ -189,6 +202,7 @@ def get_posts(user=Depends(get_current_user), db: Session = Depends(get_db)):
                     "likeCount": like_count,
                     "commentCount": comment_count,
                     "user": {
+                       "isFollowed": is_followed_value,
                         "id": post_user.id,
                         "name": post_user.name,
                         "profileImage": post_user.profile_image,
@@ -203,7 +217,6 @@ def get_posts(user=Depends(get_current_user), db: Session = Depends(get_db)):
     except Exception as e:
         db.rollback()
         return ApiResponse(message=str(e), statusCode=500).model_dump()
-
 
 @router.patch("/{id}")
 async def update_post(
