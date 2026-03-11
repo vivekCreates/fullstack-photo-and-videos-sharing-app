@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import type { PostType } from "../types/post";
 import { usePost } from "../context/PostContext";
 import UserPostCard from "../components/UserPostCard";
+import { useFollower } from "../context/FollowerContext";
 
 
 
@@ -15,6 +16,7 @@ function ProfilePage() {
 
   const { user, token } = useAuth();
   const {posts} = usePost();
+  // const {followings} = useFollower();
 
   const fetchPosts = async (type: "posts" | "bookmarks" | "likes") => {
     try {
@@ -82,9 +84,10 @@ function ProfilePage() {
           </h1>
 
           <p className="text-zinc-400 mt-1">{posts.filter(p=>p.user.id == user?.id).length} Posts</p>
+          <p className="text-zinc-400 mt-1">2 Follwers</p>
+          <p className="text-zinc-400 mt-1">{posts.filter(posts=>posts.user.isFollowed).length} Followings</p>
         </div>
 
-        {/* Tabs */}
         <div className="flex justify-center gap-10 mt-8 border-b border-zinc-800 pb-4">
           <button
             onClick={() => handleTabChange("posts")}

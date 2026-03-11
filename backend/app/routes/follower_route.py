@@ -44,8 +44,8 @@ def create_follower(
         )
 
 
-@router.get("/")
-def get_all_followers(user=Depends(get_current_user), db: Session = Depends(get_db)):
+@router.get("/followings")
+def get_all_followings(user=Depends(get_current_user), db: Session = Depends(get_db)):
     try:
         all_followers = (
             db.query(Follower, User)

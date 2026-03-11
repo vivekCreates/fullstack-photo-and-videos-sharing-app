@@ -5,12 +5,12 @@ const toggleFollowerApi = (userId:number)=> {
     return apiClient.post(`/followers/${userId}`)
 }
 
-const getAllFollwersApi = ()=> {
-     return apiClient.get(`/followers`)
+const getAllFollwingsApi = ()=> {
+     return apiClient.get(`/followers/followings`)
 }
 
 
 export {
     toggleFollowerApi,
-    getAllFollwersApi
+    getAllFollwingsApi
 }

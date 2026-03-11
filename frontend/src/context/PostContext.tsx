@@ -55,7 +55,6 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
             (res)=>{
                 const data = res.data;
                 setPosts(data);
-                toast.success(res.message)
             },
             (error)=>{
                 toast.error(error)
@@ -187,7 +186,6 @@ export const PostContextProvider = ({ children }: { children: React.ReactNode })
             (res)=>{
                 const data =res.data;
                 setUserPosts(data);
-                toast.success(res.message)
             },
             (error)=>{
                 toast.error(error)

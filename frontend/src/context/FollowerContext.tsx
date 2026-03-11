@@ -1,32 +1,41 @@
-import { createContext, useContext, useState } from "react";
-import type { FollowerType } from "../types/follower";
+import { createContext, useContext, useEffect, useState } from "react";
+import type { FollowType } from "../types/follower";
 import { usePost } from "./PostContext";
 import { requestHandler } from "../utils/requestHandler";
-import { getAllFollwersApi, toggleFollowerApi } from "../api/follower";
+import { getAllFollwingsApi, toggleFollowerApi } from "../api/follower";
 import toast from "react-hot-toast";
+import { useAuth } from "./UserContext";
 
 type FollowerContextType = {
 
-    followers: FollowerType[],
+    followers: FollowType[],
+    followings: FollowType[],
     createLoading: boolean,
     toggleFollower: (userId: number) => void,
     setCreateLoading: (loading: boolean) => void,
-    getAllFollowers: () => void
+    getAllFollowings: () => void
 }
 
 const FollowerContext = createContext<FollowerContextType>({
     followers: [],
+    followings: [],
     createLoading: false,
     toggleFollower: async () => { },
     setCreateLoading: () => { },
-    getAllFollowers: async () => { }
+    getAllFollowings: async () => { }
 })
 
 
 export const FollowerContextProvider = ({ children }: { children: React.ReactNode }) => {
-    const [followers, setFollowers] = useState<FollowerType[]>([])
+    const [followers, setFollowers] = useState<FollowType[]>([])
+    const [followings, setFollowings] = useState<FollowType[]>([])
     const [createLoading, setCreateLoading] = useState(false)
     const { setPosts } = usePost();
+    const { user} = useAuth()
+
+    useEffect(()=>{
+        getAllFollowings()
+    },[])
 
     const toggleFollower = async (userId: number
     ) => {
@@ -38,10 +47,22 @@ export const FollowerContextProvider = ({ children }: { children: React.ReactNod
             )
         );
 
+        const tempId = Date.now()
+
+        // const follow = {
+        //     id:tempId,
+        //     profileImage:String(user?.profile_image!),
+        //     name:user?.name!,
+        //     userId:user?.id!
+        // }
+
+        // setFollowings(prev=>([follow,...prev]))
         await requestHandler(
             async () => await toggleFollowerApi(userId),
             setCreateLoading,
             (res) => {
+                const data = res.data;
+                // setFollowings(prev=>prev.map(f=>f.id ==tempId ? data :f))
                 toast.success(res.message)
             },
             (error) => {
@@ -52,19 +73,19 @@ export const FollowerContextProvider = ({ children }: { children: React.ReactNod
                             : p
                     )
                 );
+                // setFollowings(prev=>prev.filter(f=>f.id != tempId))
                 toast.error(error)
             }
         )
     }
-    const getAllFollowers = async ()=>{
+    const getAllFollowings = async ()=>{
 
         await requestHandler(
-            async () => await getAllFollwersApi(),
+            async () => await getAllFollwingsApi(),
             setCreateLoading,
             (res) => {
                 const data = res.data;
-                setFollowers(data)
-                toast.success(res.message)
+                setFollowings(data)
             },
             (error) => {
                 toast.error(error)
@@ -73,7 +94,7 @@ export const FollowerContextProvider = ({ children }: { children: React.ReactNod
     }
 
     return (
-        <FollowerContext.Provider value={{followers,createLoading,setCreateLoading,toggleFollower,getAllFollowers}}>
+        <FollowerContext.Provider value={{followers,followings,createLoading,setCreateLoading,toggleFollower,getAllFollowings}}>
             {children}
         </FollowerContext.Provider>
     )

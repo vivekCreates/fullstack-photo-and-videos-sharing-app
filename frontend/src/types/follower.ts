@@ -1,4 +1,4 @@
-export type FollowerType = {
+export type FollowType = {
     id:number,
     name:string,
     profileImage:string,
