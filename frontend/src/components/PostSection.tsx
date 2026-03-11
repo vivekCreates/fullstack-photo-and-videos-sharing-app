@@ -23,6 +23,8 @@ function PostSection() {
         postImage={post.file}
         profileImage={post.user.profileImage}
         userId={post.user.id}
+        isFollowed={post.user.isFollowed}
+        isOwner={post.isOwner}
         />
       ))
     }

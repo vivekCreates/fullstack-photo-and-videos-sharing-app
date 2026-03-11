@@ -7,6 +7,7 @@ import { Toaster } from "react-hot-toast"
 import { CommentContextProvider } from './context/CommentContext.tsx'
 import { BookmarkContextProvider } from './context/BookmarkContext.tsx'
 import { LikeContextProvider } from './context/LikeContext.tsx'
+import { FollowerContextProvider } from './context/FollowerContext.tsx'
 
 createRoot(document.getElementById('root')!).render(
     <>
@@ -16,7 +17,9 @@ createRoot(document.getElementById('root')!).render(
                 <BookmarkContextProvider>
                     <CommentContextProvider>
                     <LikeContextProvider>
+                    <FollowerContextProvider>
                         <App />
+                    </FollowerContextProvider>
                     </LikeContextProvider>
                     </CommentContextProvider>
                 </BookmarkContextProvider>

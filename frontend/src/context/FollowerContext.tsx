@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import type { FollowerType } from "../types/follower";
 import { usePost } from "./PostContext";
 import { requestHandler } from "../utils/requestHandler";
@@ -23,7 +23,7 @@ const FollowerContext = createContext<FollowerContextType>({
 })
 
 
-const FollowerContextProvider = ({ children }: { children: React.ReactNode }) => {
+export const FollowerContextProvider = ({ children }: { children: React.ReactNode }) => {
     const [followers, setFollowers] = useState<FollowerType[]>([])
     const [createLoading, setCreateLoading] = useState(false)
     const { setPosts } = usePost();
@@ -78,3 +78,6 @@ const FollowerContextProvider = ({ children }: { children: React.ReactNode }) =>
         </FollowerContext.Provider>
     )
 }
+
+
+export const useFollower = () => useContext(FollowerContext)

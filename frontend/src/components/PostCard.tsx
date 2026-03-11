@@ -5,6 +5,7 @@ import { usePost } from "../context/PostContext";
 import { useNavigate } from "react-router";
 import { useBookmark } from "../context/BookmarkContext";
 import { useLike } from "../context/LikeContext";
+import { useFollower } from "../context/FollowerContext";
 
 type PostCardProps = {
   id: number;
@@ -18,6 +19,8 @@ type PostCardProps = {
   likeCount: number;
   commentCount: number;
   userId: number;
+  isFollowed: boolean,
+  isOwner: boolean
 };
 
 export const PostCard = ({
@@ -31,7 +34,9 @@ export const PostCard = ({
   isLiked,
   likeCount,
   profileImage,
-  userId
+  userId,
+  isFollowed,
+  isOwner
 }: PostCardProps) => {
 
   const [open, setOpen] = useState(false);
@@ -39,7 +44,8 @@ export const PostCard = ({
 
   const { user } = useAuth();
   const { deletePost } = usePost();
-  const {toggleLike} = useLike()
+  const { toggleLike } = useLike()
+  const { toggleFollower } = useFollower()
   const { toggleBookmark } = useBookmark();
   const navigate = useNavigate();
 
@@ -84,44 +90,60 @@ export const PostCard = ({
           </h3>
 
         </div>
+        <div className="flex gap-2 items-center">
+          {
+            !isOwner && (
+              <button
+                onClick={() => toggleFollower(userId)}
+                className={`px-4 py-1.5 text-sm font-medium rounded-full transition-all duration-200
+  ${isFollowed
+                    ? "bg-neutral-800 text-gray-300 hover:bg-neutral-700"
+                    : "bg-white text-black hover:bg-gray-200"
+                  }`}
+              >
+                {isFollowed ? "Following" : "Follow"}
+              </button>
+            )
+          }
 
-        {userId === user?.id && (
+          {userId === user?.id && (
 
-          <div className="relative" ref={menuRef}>
+            <div className="relative" ref={menuRef}>
 
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setOpen(prev => !prev);
-              }}
-              className="p-2 rounded-full hover:bg-zinc-800 transition"
-            >
-              <MoreVertical size={18} className="text-zinc-400" />
-            </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOpen(prev => !prev);
+                }}
+                className="p-2 rounded-full hover:bg-zinc-800 transition"
+              >
+                <MoreVertical size={18} className="text-zinc-400" />
+              </button>
 
-            {open && (
-              <div className="absolute right-0 mt-2 w-28 bg-zinc-900 border border-zinc-700 rounded-lg shadow-lg z-50">
+              {open && (
+                <div className="absolute right-0 mt-2 w-28 bg-zinc-900 border border-zinc-700 rounded-lg shadow-lg z-50">
 
-                <button
-                  onClick={() => navigate(`/edit/${id}`)}
-                  className="w-full text-left px-3 py-2 text-xs text-zinc-200 hover:bg-zinc-800 rounded-t-lg"
-                >
-                  Edit
-                </button>
+                  <button
+                    onClick={() => navigate(`/edit/${id}`)}
+                    className="w-full text-left px-3 py-2 text-xs text-zinc-200 hover:bg-zinc-800 rounded-t-lg"
+                  >
+                    Edit
+                  </button>
 
-                <button
-                  onClick={() => deletePost(id)}
-                  className="w-full text-left px-3 py-2 text-xs text-red-400 hover:bg-zinc-800 rounded-b-lg"
-                >
-                  Delete
-                </button>
+                  <button
+                    onClick={() => deletePost(id)}
+                    className="w-full text-left px-3 py-2 text-xs text-red-400 hover:bg-zinc-800 rounded-b-lg"
+                  >
+                    Delete
+                  </button>
 
-              </div>
-            )}
+                </div>
+              )}
 
-          </div>
+            </div>
 
-        )}
+          )}
+        </div>
 
       </div>
 
