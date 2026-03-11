@@ -2,7 +2,7 @@ import { createContext, useState } from "react";
 import type { FollowerType } from "../types/follower";
 import { usePost } from "./PostContext";
 import { requestHandler } from "../utils/requestHandler";
-import { toggleFollowerApi } from "../api/follower";
+import { getAllFollwersApi, toggleFollowerApi } from "../api/follower";
 import toast from "react-hot-toast";
 
 type FollowerContextType = {
@@ -24,7 +24,7 @@ const FollowerContext = createContext<FollowerContextType>({
 
 
 const FollowerContextProvider = ({ children }: { children: React.ReactNode }) => {
-    const [followers, setFollowers] = useState<FollowerContextType[]>([])
+    const [followers, setFollowers] = useState<FollowerType[]>([])
     const [createLoading, setCreateLoading] = useState(false)
     const { setPosts } = usePost();
 
@@ -56,9 +56,24 @@ const FollowerContextProvider = ({ children }: { children: React.ReactNode }) =>
             }
         )
     }
+    const getAllFollowers = async ()=>{
+
+        await requestHandler(
+            async () => await getAllFollwersApi(),
+            setCreateLoading,
+            (res) => {
+                const data = res.data;
+                setFollowers(data)
+                toast.success(res.message)
+            },
+            (error) => {
+                toast.error(error)
+            }
+        )
+    }
 
     return (
-        <FollowerContext.Provider value={{toggleFollower}}>
+        <FollowerContext.Provider value={{followers,createLoading,setCreateLoading,toggleFollower,getAllFollowers}}>
             {children}
         </FollowerContext.Provider>
     )
