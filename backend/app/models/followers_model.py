@@ -21,12 +21,23 @@ class Follower(Base):
         nullable=False
     )
 
-
-    user = relationship(
+    # user who is being followed
+    following_user = relationship(
         "User",
+        foreign_keys=[follow_to],
         back_populates="followers"
     )
 
+    # user who follows
+    follower_user = relationship(
+        "User",
+        foreign_keys=[follow_by],
+        back_populates="following"
+    )
+
+    __table_args__ = (
+        UniqueConstraint("follow_to", "follow_by", name="unique_follow"),
+    )
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

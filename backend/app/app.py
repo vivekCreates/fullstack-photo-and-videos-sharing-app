@@ -2,7 +2,7 @@ from fastapi import FastAPI,Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.routes import user_route,post_route,like_route,comment_route,bookmark_route
+from app.routes import user_route,post_route,like_route,comment_route,bookmark_route,follower_route
 from app.db.init_db import create_tables
 from fastapi.responses import JSONResponse
 
@@ -47,6 +47,7 @@ app.include_router(post_route.router, prefix=settings.API_PREFIX)
 app.include_router(like_route.router, prefix=settings.API_PREFIX)
 app.include_router(comment_route.router, prefix=settings.API_PREFIX)
 app.include_router(bookmark_route.router, prefix=settings.API_PREFIX)
+app.include_router(follower_route.router, prefix=settings.API_PREFIX)
 
 
 @app.get("/")

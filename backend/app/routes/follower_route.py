@@ -20,7 +20,7 @@ def create_follower(
 
         if already_follow:
             db.delete(already_follow)
-            db.refresh()
+            db.commit()
 
             return ApiResponse(statusCode=200, message="Unfollow successfully")
         else:

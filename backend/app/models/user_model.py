@@ -36,9 +36,17 @@ class User(Base):
         cascade="all, delete-orphan"
     )
     followers = relationship(
-        "Follower",
-        back_populates="user",
-        cascade="all, delete-orphan"
+    "Follower",
+    foreign_keys="[Follower.follow_to]",
+    back_populates="following_user",
+    cascade="all, delete"
+)
+
+    following = relationship(
+    "Follower",
+    foreign_keys="[Follower.follow_by]",
+    back_populates="follower_user",
+    cascade="all, delete"
     )
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
