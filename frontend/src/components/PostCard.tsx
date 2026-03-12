@@ -94,7 +94,7 @@ export const PostCard = ({
           {!isOwner && (
             <button
               onClick={() => toggleFollower(userId)}
-              className={`px-3 sm:px-4 py-1 text-xs sm:text-sm font-medium rounded-full transition
+              className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-full transition
                 ${isFollowed
                   ? "bg-neutral-900 text-neutral-300"
                   : "bg-white text-black hover:bg-neutral-200"
@@ -156,7 +156,7 @@ export const PostCard = ({
 
       <div className="px-3 sm:px-4 py-4 space-y-3">
 
-        <h2 className="text-base sm:text-lg font-semibold text-white">
+        <h2 className="text-base sm:text-lg h-12 font-semibold text-white">
           {title}
         </h2>
 

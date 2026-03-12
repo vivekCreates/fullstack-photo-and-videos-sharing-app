@@ -4,136 +4,143 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.models.comment_model import Comment
 from app.models.user_model import User
-from app.schemas.comment_schema import CreateComment,UpdateComment
+from app.schemas.comment_schema import CreateComment, UpdateComment
 from app.schemas.response_schema import ApiResponse
 from typing import Optional
 
-router = APIRouter(prefix="/comments",)
+router = APIRouter(
+    prefix="/comments",
+)
 
 
 @router.post("/posts/{post_id}")
-def create_Comment(post_id:int,comment:CreateComment,user=Depends(get_current_user),db:Session=Depends(get_db)):
+def create_Comment(
+    post_id: int,
+    comment: CreateComment,
+    user=Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     try:
         comment = Comment(
             post_id=post_id,
             text=comment.text,
             user_id=user.id,
-            parent_comment_id=comment.parent_comment_id
+            parent_comment_id=comment.parent_comment_id,
         )
-        
+
         db.add(comment)
         db.commit()
         db.refresh(comment)
+
+        comment_res = {
+                "id":comment.id,
+                "text": comment.text,
+                "postId":comment.post_id,
+                "userId": comment.user_id,
+                "parentCommentId": comment.parent_comment_id,
+                "createdAt":comment.created_at,
+                "updatedAt": comment.updated_at,
+            }
         
+
         return ApiResponse(
-            statusCode=200,
-            message="Comment created successfully",
-            data=comment
+            statusCode=200, message="Comment created successfully", data=comment_res
         ).model_dump()
     except HTTPException as e:
         db.rollback()
         print(str(e))
-        return ApiResponse(
-            statusCode=500,
-            message=str(e)
-        )
-        
+        return ApiResponse(statusCode=500, message=str(e))
+
+
 @router.patch("/{comment_id}")
-def update_comment(comment_id:int,comment_body:UpdateComment,user=Depends(get_current_user),db:Session=Depends(get_db)):
+def update_comment(
+    comment_id: int,
+    comment_body: UpdateComment,
+    user=Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     try:
         comment = db.query(Comment).filter(Comment.id == comment_id).first()
-        
+
         if not comment:
-            return ApiResponse(
-                statusCode=404,
-                message="Comment not found"
-            ).model_dump()
-        
-            
+            return ApiResponse(statusCode=404, message="Comment not found").model_dump()
+
         comment.text = comment_body.text
         db.commit()
         db.refresh(comment)
-        
+
         return ApiResponse(
-                statusCode=201,
-                message="Comment updated successfully"
-            ).model_dump()
-    except HTTPException as e:
-        db.rollback()
-        print(str(e))
-        return ApiResponse(
-            statusCode=500,
-            message=str(e)
-        )
-        
-@router.delete("/{comment_id}")
-def delete_comment(comment_id:int,user=Depends(get_current_user),db:Session=Depends(get_db)):
-    try:
-        comment = db.query(Comment).filter(Comment.id ==comment_id ).first()
-        
-        if not comment:
-             return ApiResponse(
-                statusCode=404,
-                message="Comment not found"
-            ).model_dump()
-             
-        if comment.user_id != user.id:
-             return ApiResponse(
-                statusCode=404,
-                message="You are not authenticate to delete this comment"
-            ).model_dump()
-             
-        db.delete(comment)
-        db.commit()
-        
-        return ApiResponse(
-                statusCode=200,
-                message="comment deleted successfully"
-            ).model_dump()
-    except HTTPException as e:
-        db.rollback()
-        print(str(e))
-        return ApiResponse(
-            statusCode=500,
-            message=str(e)
-        )
-        
-@router.get("/posts/{post_id}")
-def getall_comments_by_post_id(post_id:int,user=Depends(get_current_user),db:Session=Depends(get_db)):
-    try:
-        comments =( 
-            db.query(Comment,User)
-              .filter(Comment.post_id==post_id)
-              .join(User,Comment.user_id == User.id)
-              .all()
-            )
-        
-        result = []
-        for c, u in comments:
-            result.append({
-                "id": c.id,
-                "text":c.text,
-                "postId": c.post_id,
-                "parentCommentId": c.parent_comment_id,
-                "createdAt": c.created_at,
-                "updatedAt":c.updated_at,
-                "user": {
-                    "id": u.id,
-                    "name": u.name,
-                    "profileImage": u.profile_image,
-                }
-            })
-            print(result)
-            
-        return ApiResponse(
-            statusCode=200,
-            message="Comment fetched successfully",
-            data=result
+            statusCode=201, message="Comment updated successfully"
         ).model_dump()
     except HTTPException as e:
         db.rollback()
         print(str(e))
+        return ApiResponse(statusCode=500, message=str(e))
+
+
+@router.delete("/{comment_id}")
+def delete_comment(
+    comment_id: int, user=Depends(get_current_user), db: Session = Depends(get_db)
+):
+    try:
+        comment = db.query(Comment).filter(Comment.id == comment_id).first()
+
+        if not comment:
+            return ApiResponse(statusCode=404, message="Comment not found").model_dump()
+
+        if comment.user_id != user.id:
+            return ApiResponse(
+                statusCode=404,
+                message="You are not authenticate to delete this comment",
+            ).model_dump()
+
+        db.delete(comment)
+        db.commit()
+
         return ApiResponse(
-            statusCode=500,
-            message=str(e)
+            statusCode=200, message="comment deleted successfully"
+        ).model_dump()
+    except HTTPException as e:
+        db.rollback()
+        print(str(e))
+        return ApiResponse(statusCode=500, message=str(e))
+
+
+@router.get("/posts/{post_id}")
+def getall_comments_by_post_id(
+    post_id: int, user=Depends(get_current_user), db: Session = Depends(get_db)
+):
+    try:
+        comments = (
+            db.query(Comment, User)
+            .filter(Comment.post_id == post_id)
+            .join(User, Comment.user_id == User.id)
+            .all()
         )
+
+        result = []
+        for c, u in comments:
+            result.append(
+                {
+                    "id": c.id,
+                    "text": c.text,
+                    "postId": c.post_id,
+                    "parentCommentId": c.parent_comment_id,
+                    "createdAt": c.created_at,
+                    "updatedAt": c.updated_at,
+                    "user": {
+                        "id": u.id,
+                        "name": u.name,
+                        "profileImage": u.profile_image,
+                    },
+                }
+            )
+            print(result)
+
+        return ApiResponse(
+            statusCode=200, message="Comment fetched successfully", data=result
+        ).model_dump()
+    except HTTPException as e:
+        db.rollback()
+        print(str(e))
+        return ApiResponse(statusCode=500, message=str(e))

@@ -5,13 +5,13 @@ import { useComment } from "../context/CommentContext";
 import { convertDate } from "../utils/utility";
 
 type CommentProps = CommentType & {
-  commentInput: string
-  isCommentEditable: boolean
-  setCommentInput: (text: string) => void
-  setIsCommentEditable: (val: boolean) => void
-  setEditableCommentId: (id: number) => void
-  setParentCommentId: (id: number) => void
-}
+  commentInput: string;
+  isCommentEditable: boolean;
+  setCommentInput: (text: string) => void;
+  setIsCommentEditable: (val: boolean) => void;
+  setEditableCommentId: (id: number) => void;
+  setParentCommentId: (id: number) => void;
+};
 
 const CommentItem = ({
   id,
@@ -32,92 +32,90 @@ const CommentItem = ({
   const { deleteComment } = useComment();
 
   return (
-    <div className="group flex gap-4 p-4 bg-black border border-zinc-800
-    rounded-xl hover:border-zinc-700 transition relative
-    shadow-[0_0_15px_rgba(255,255,255,0.02)]">
+    <div
+      className="
+      group flex gap-3 sm:gap-4 p-3 sm:p-4
+      bg-neutral-900 border border-neutral-800
+      rounded-lg sm:rounded-xl
+      hover:border-neutral-700
+      hover:bg-neutral-800
+      transition relative shadow-sm
+      "
+    >
 
       {user?.profileImage ? (
         <img
           src={user.profileImage}
           alt={user.name}
-          className="w-10 h-10 rounded-full object-cover border border-zinc-700"
+          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border border-neutral-700"
         />
       ) : (
-        <div className="w-10 h-10 rounded-full flex items-center justify-center bg-zinc-800 text-sm font-semibold">
+        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center bg-neutral-800 text-xs sm:text-sm font-semibold text-white">
           {user?.name?.[0]?.toUpperCase()}
         </div>
       )}
 
+      <div className="flex-1 min-w-0">
 
-      <div className="flex-1">
+        <div className="flex items-center justify-between gap-2">
 
-    
-        <div className="flex items-center justify-between">
-
-          <div className="flex items-center gap-3">
-            <h4 className="text-sm font-semibold text-zinc-200">
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+            <h4 className="text-xs sm:text-sm font-semibold text-white truncate">
               @{user?.name}
             </h4>
-
-            <span className="text-xs text-zinc-500">
+            <span className="text-[10px] sm:text-xs text-neutral-400">
               {convertDate(createdAt)}
             </span>
           </div>
 
-     
           <div className="relative">
-
             <button
               onClick={() => setOpen(prev => !prev)}
-              className="p-1 rounded-full text-zinc-500 hover:text-white hover:bg-zinc-800 transition"
+              className="p-1 rounded-full text-white hover:bg-neutral-700 transition"
             >
               <MoreVertical size={18} />
             </button>
 
             {open && (
-              <div className="absolute right-0 mt-2 w-28 bg-zinc-900
-              border border-zinc-700 rounded-lg shadow-lg overflow-hidden z-50">
-
+              <div className="absolute right-0 mt-2 w-24 sm:w-28 bg-neutral-900 border border-neutral-700 rounded-lg shadow-lg overflow-hidden z-50">
                 <button
                   onClick={() => {
-                    setOpen(false)
-                    setCommentInput(text)
-                    setEditableCommentId(id)
-                    setIsCommentEditable(!isCommentEditable)
+                    setOpen(false);
+                    setCommentInput(text);
+                    setEditableCommentId(id);
+                    setIsCommentEditable(!isCommentEditable);
                   }}
-                  className="block w-full text-left px-4 py-2 text-xs text-zinc-300 hover:bg-zinc-800"
+                  className="block w-full text-left px-3 sm:px-4 py-2 text-[11px] sm:text-xs text-white hover:bg-neutral-800"
                 >
                   Edit
                 </button>
 
                 <button
                   onClick={() => {
-                    setOpen(false)
-                    deleteComment(Number(id))
+                    setOpen(false);
+                    deleteComment(Number(id));
                   }}
-                  className="block w-full text-left px-4 py-2 text-xs text-red-400 hover:bg-zinc-800"
+                  className="block w-full text-left px-3 sm:px-4 py-2 text-[11px] sm:text-xs text-red-500 hover:bg-neutral-800"
                 >
                   Delete
                 </button>
-
               </div>
             )}
-
           </div>
 
         </div>
 
-        <p className="mt-2 text-sm text-zinc-400 leading-relaxed">
+        <p className="mt-2 text-xs sm:text-sm text-neutral-200 leading-relaxed break-words">
           {text}
         </p>
 
-        
+
         <button
-          className={`flex items-center gap-1 mt-3 text-xs transition
-          ${isReplying ? "text-[#8B5CF6]" : "text-zinc-500 hover:text-white"}`}
+          className={`flex items-center gap-1 mt-3 text-[11px] sm:text-xs transition
+          ${isReplying ? "text-violet-500" : "text-white hover:text-violet-400"}`}
           onClick={() => {
-            setIsReplying(!isReplying)
-            setParentCommentId(id)
+            setIsReplying(!isReplying);
+            setParentCommentId(id);
           }}
         >
           <Reply size={16} />

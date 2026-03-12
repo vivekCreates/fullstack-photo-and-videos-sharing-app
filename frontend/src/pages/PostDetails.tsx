@@ -174,8 +174,8 @@ export const PostDetails = () => {
                     setIsCommentEditable(false);
                     setParentCommentId(null);
                   }}
-                  className="px-5 py-2 rounded-xl bg-[#8B5CF6]
-                  hover:bg-[#7C3AED] transition"
+                  className="px-5 py-2 rounded-xl bg-white text-black
+                   transition"
                 >
                   Update
                 </button>
@@ -192,8 +192,7 @@ export const PostDetails = () => {
 
                     setComment("");
                   }}
-                  className="px-5 py-2 rounded-xl bg-[#8B5CF6]
-                  hover:bg-[#7C3AED] transition"
+                  className="px-5 py-2 rounded-xl bg-white text-black transition"
                 >
                   Post
                 </button>

@@ -17,6 +17,7 @@ function Navbar() {
         rounded-xl sm:rounded-2xl
         flex items-center justify-between
         shadow-lg
+        z-50
         relative"
       >
 

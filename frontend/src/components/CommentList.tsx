@@ -32,7 +32,7 @@ const CommentList = ({
   return (
     <>
       {filtered.map(comment => (
-        <div key={comment.id} className="flex flex-col gap-3">
+        <div key={`${comment.id}-${comment.parentCommentId}`} className="flex flex-col gap-3">
 
           <CommentItem
             {...comment}
