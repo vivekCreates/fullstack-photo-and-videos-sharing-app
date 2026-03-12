@@ -44,6 +44,7 @@ export const UserContextProvider = ({ children }: { children: React.ReactNode })
     const [token, setToken] = useState<string | null>(localStorage.getItem("token"))
 
     useEffect(() => {
+        if(!token) return;
         const fetchUser = async () => {
             await requestHandler(
                 async ()=> await fetchUserApi(),
@@ -56,7 +57,7 @@ export const UserContextProvider = ({ children }: { children: React.ReactNode })
                     toast.success(res.message)
                 },
                 (error)=>{
-                    toast.error(error)
+                    toast.error("user"+error)
                 }
 
             )

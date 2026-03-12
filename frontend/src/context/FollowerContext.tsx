@@ -35,6 +35,7 @@ export const FollowerContextProvider = ({ children }: { children: React.ReactNod
     const { user, setUser } = useAuth()
 
     useEffect(() => {
+        if(!user) return;
         getAllFollowings()
     }, [])
 

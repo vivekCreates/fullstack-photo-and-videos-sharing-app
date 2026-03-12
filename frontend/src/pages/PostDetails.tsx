@@ -185,7 +185,7 @@ export const PostDetails = () => {
                 <button
                   onClick={() => {
                     createComment({
-                      postId: post.id,
+                      postId:Number(id),
                       parentCommentId,
                       text: comment
                     });

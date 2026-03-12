@@ -72,7 +72,7 @@ export const CommentContextProvider = ({ children }: { children: React.ReactNode
                 const commentData = {
                     id: data.id,
                     text: data.text,
-                    postId: data.post_id,
+                    postId: data.postId,
                     parentCommentId: data.parentCommentId,
                     createdAt: now,
                     updatedAt: now,
