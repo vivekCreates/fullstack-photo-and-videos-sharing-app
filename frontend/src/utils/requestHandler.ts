@@ -19,7 +19,6 @@ export const requestHandler = async (
         }
         onSuccess(data)
     } catch (error: any) {
-        console.log(error);
         onError(error.message);
     } finally {
         setLoading(false)

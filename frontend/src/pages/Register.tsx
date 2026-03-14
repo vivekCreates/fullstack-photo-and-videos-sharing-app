@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import type { UserRegister } from "../types/user";
 import { useAuth } from "../context/UserContext";
 import { Link, useNavigate } from "react-router";
+import Loader from "../components/Loader";
 
 function Register() {
   const [user, setUser] = useState<UserRegister>({
@@ -11,7 +12,7 @@ function Register() {
   });
 
   const navigate = useNavigate();
-  const { register } = useAuth();
+  const { register,createLoading } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -79,9 +80,13 @@ function Register() {
 
             <button
               type="submit"
+              disabled={createLoading}
               className="w-full h-12 mt-2 rounded-xl bg-white text-black font-medium hover:bg-neutral-200 active:scale-[0.98] transition"
             >
-              Create Account
+              {
+                createLoading ? <Loader/>:<p>Create Account</p>
+              }
+             
             </button>
 
           </form>

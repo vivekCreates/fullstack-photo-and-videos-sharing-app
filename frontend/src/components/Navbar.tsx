@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Menu } from "lucide-react";
 
 function Navbar() {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const [open, setOpen] = useState(false);
 
   return (
@@ -34,8 +34,13 @@ function Navbar() {
             Create
           </Link>
 
-          <Link to="/profile" className="hover:text-white transition">
-            Profile
+
+          <Link
+            to="/profile"
+            className="block hover:opacity-90 transition"
+          >
+          profile
+            
           </Link>
 
           <button

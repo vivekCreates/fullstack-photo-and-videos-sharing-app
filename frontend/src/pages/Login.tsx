@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import type { UserLogin } from "../types/user";
 import { Link, useNavigate } from "react-router";
 import { useAuth } from "../context/UserContext";
+import { Loader } from "../components/Loader";
+
 
 function Login() {
   const [user, setUser] = useState<UserLogin>({
@@ -10,7 +12,7 @@ function Login() {
   });
 
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login ,createLoading} = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -70,9 +72,13 @@ function Login() {
 
             <button
               type="submit"
+              disabled={createLoading}
               className="w-full h-12 mt-2 rounded-xl bg-white text-black font-medium hover:bg-neutral-200 active:scale-[0.98] transition"
             >
-              Login
+              {
+                createLoading ? <Loader/>:<p>  Login </p>
+              }
+            
             </button>
 
           </form>

@@ -21,7 +21,7 @@ type UserContextType = {
 
 const UserContext = createContext<UserContextType>({
     isLoggedIn: false,
-    token: "",
+    token: null,
     user: null,
     setUser:()=>{},
     loading: true,
@@ -44,27 +44,26 @@ export const UserContextProvider = ({ children }: { children: React.ReactNode })
     const [token, setToken] = useState<string | null>(localStorage.getItem("token"))
 
     useEffect(() => {
-        if(!token) return;
-        const fetchUser = async () => {
-            await requestHandler(
-                async ()=> await fetchUserApi(),
-                setLoading,
-                (res)=>{
-                    const data = res.data;
-                    setUser(data)
-                    setIsLoggedIn(true)
-                    // setLoading(false)
-                    toast.success(res.message)
-                },
-                (error)=>{
-                    toast.error("user"+error)
-                }
+    if (!token) return;
 
-            )
-        };
+    const fetchUser = async () => {
+        await requestHandler(
+            async () => await fetchUserApi(),
+            setLoading,
+            (res) => {
+                const data = res.data;
+                console.log(data)
+                setUser(data);
+                setIsLoggedIn(true);
+            },
+            (error) => {
+                toast.error("user " + error);
+            }
+        );
+    };
 
-        fetchUser();
-    }, []);
+    fetchUser();
+}, [token]);
 
 
     const register = async (user: UserRegister) => {
@@ -105,13 +104,12 @@ export const UserContextProvider = ({ children }: { children: React.ReactNode })
         async ()=> await logOutUserApi(),
         setCreateLoading,
         (res)=>{
-            const data = res.data;
-            localStorage.removeItem("token")
-            setUser(data?.user)
-            setToken(data?.token)
-            setIsLoggedIn(false)
-            toast.success(res.message)
-        },
+    localStorage.removeItem("token")
+    setUser(null)
+    setToken(null)
+    setIsLoggedIn(false)
+    toast.success(res.message)
+},
        (error)=>{
         toast.error(error)
        }
